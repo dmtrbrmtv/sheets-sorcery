@@ -41,6 +41,7 @@ function updateFog() {
 
   syncToolFlags_(ss);
   renderHud_(ss);
+  updateDayCell_(ss);
 
   SpreadsheetApp.flush();
 }

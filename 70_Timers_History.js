@@ -91,9 +91,11 @@ function setDay_(n) {
   p.setProperty("currentDay", String(n));
 }
 
-function updateDayCell_(ss, day) {
+function updateDayCell_(ss) {
+  const day = getDay_();
   const shMap = getSheet_(ss, CFG.SHEETS.map);
   shMap.getRange("C39").setValue(`День ${day}`);
+  SpreadsheetApp.flush();
 }
 
 function newDayMaster() {
@@ -106,7 +108,7 @@ function newDayMaster() {
 
   const day = getDay_() + 1;
   setDay_(day);
-  updateDayCell_(ss, day);
+  updateDayCell_(ss);
 
   writeHistory_(ss, "🧙‍♂️Мастер", "🎆", `Новый день ${day}: 👣=${CFG.MOVES_PER_DAY}`, "", "");
   updateFog();
@@ -127,7 +129,7 @@ function skipWeek() {
 
   const day = getDay_() + DAYS;
   setDay_(day);
-  updateDayCell_(ss, day);
+  updateDayCell_(ss);
 
   writeHistory_(ss, "🧙‍♂️Мастер", "⏩", `Прошла неделя → День ${day}`, "", "");
   updateFog();
