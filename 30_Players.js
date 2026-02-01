@@ -133,8 +133,7 @@ function setPlayerMoves_(ss, sheetRow, moves) {
 }
 
 function setStatus_(ss, sheetRow, statusText) {
-  const sh = ss.getSheetByName(CFG.SHEETS.players);
-  if (!sh) return;
+  const sh = getSheet_(ss, CFG.SHEETS.players);
   const header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(v => String(v || "").trim());
   const col = findColContains_(header, ["🌀Статус", "🌀", "Статус"]);
   if (col === -1) return;
@@ -210,8 +209,7 @@ function addItem_(ss, playerName, itemEmoji, note) {
 }
 
 function hasItem_(ss, playerName, itemEmoji) {
-  const sh = ss.getSheetByName(CFG.SHEETS.equip);
-  if (!sh) return false;
+  const sh = getSheet_(ss, CFG.SHEETS.equip);
   const values = sh.getDataRange().getValues();
   if (values.length < 2) return false;
 
@@ -229,10 +227,8 @@ function hasItem_(ss, playerName, itemEmoji) {
 }
 
 function syncToolFlags_(ss) {
-  const shP = ss.getSheetByName(CFG.SHEETS.players);
-  const shE = ss.getSheetByName(CFG.SHEETS.equip);
-  if (!shP || !shE) return;
-
+  const shP = getSheet_(ss, CFG.SHEETS.players);
+  const shE = getSheet_(ss, CFG.SHEETS.equip);
   const pData = shP.getDataRange().getValues();
   if (pData.length < 2) return;
 
