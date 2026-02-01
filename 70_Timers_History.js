@@ -24,8 +24,7 @@ function addTimer_(ss, x, y, restoreTile, days, reason, who) {
 }
 
 function hasTimerAt_(ss, x, y) {
-  const sh = ss.getSheetByName(CFG.SHEETS.timers);
-  if (!sh) return false;
+  const sh = getSheet_(ss, CFG.SHEETS.timers);
   const data = sh.getDataRange().getValues();
   if (data.length < 2) return false;
 
@@ -39,9 +38,7 @@ function hasTimerAt_(ss, x, y) {
 }
 
 function tickTimers_(ss) {
-  const sh = ss.getSheetByName(CFG.SHEETS.timers);
-  if (!sh) return;
-
+  const sh = getSheet_(ss, CFG.SHEETS.timers);
   const data = sh.getDataRange().getValues();
   if (data.length < 2) return;
 
