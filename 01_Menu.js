@@ -18,6 +18,7 @@ function onOpen() {
     .addItem("⬇️ Move S", "moveS")
     .addItem("⬅️ Move W", "moveW")
     .addItem("➡️ Move E", "moveE")
+    .addItem("⏸️ Пропустить ход", "waitTurn")
     .addSeparator()
     .addItem("🪵 Рубка леса (🌲/🌳/🌿/🌱)", "doChopWood")
     .addItem("⛏️ Каменоломня (🗻/🪨/🧱)", "doQuarry")

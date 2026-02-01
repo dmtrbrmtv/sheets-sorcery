@@ -93,4 +93,16 @@ const CFG = {
     HOUSE_ALLOWED_TILES: new Set(["⬜️", "🏚️"]),
     HOUSE_TILE: "🏠",
   },
+
+  ANIMALS: {
+    small: { emoji: "🐇", tiles: new Set(["⬜️", "🌿"]) },
+    big: { emoji: "🦌", tiles: new Set(["🌳", "🌲", "🌿"]) },
+    maxCount: 5,
+  },
+
+  NPCS: {
+    "🧝🏿": { name: "Dark elf", tiles: new Set(["🌳", "🌲", "🌿"]), atk: 2, hp: 4, movesPerDay: 1 },
+    "🧑🏾‍🌾": { name: "Infected farmer", tiles: new Set(["⬜️"]), atk: 1, hp: 2, movesPerDay: 1, spawnChance: 0.1 },
+    "🧙🏾‍♀️": { name: "Mad mage", tiles: new Set(["🗿", "⛰️", "🌋"]), atk: 3, hp: 5, movesPerDay: 1 },
+  },
 };

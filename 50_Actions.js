@@ -39,6 +39,41 @@ function move_(dir) {
   writeHistory_(ss, actor.name, `👣-1, ${tile}`, `Переместился (${x},${y}) → (${nx},${ny})`, "", "");
 
   handleEncounter_(ss, actor.name);
+  handleNpcEncounter_(ss, actor.name);
+  const rg = gridRange_(getSheet_(ss, CFG.SHEETS.base));
+  moveAnimals_(ss, rg.getNumColumns(), rg.getNumRows());
+
+  updateFog();
+}
+
+function waitTurn() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const actor = getActiveActor_(ss);
+
+  if (actor.moves <= 0) {
+    writeHistory_(ss, actor.name, "👣0", "Нет ходов для пропуска", "", "");
+    return;
+  }
+
+  setPlayerMoves_(ss, actor.row, actor.moves - 1);
+
+  const tile = readBaseTile_(ss, actor.x, actor.y);
+  if (tile === CFG.ZOMBIE.aliveTile) {
+    writeHistory_(ss, actor.name, "👣-1", "Пропустил ход на 🧟 → бой!", "", "");
+    handleEncounter_(ss, actor.name);
+  } else {
+    const npc = getNpcs_().find(n => n.x === actor.x && n.y === actor.y);
+    if (npc) {
+      writeHistory_(ss, actor.name, "👣-1", `Пропустил ход на ${npc.emoji} → бой!`, "", "");
+      resolveNpcFight_(ss, actor, npc);
+    } else {
+      writeHistory_(ss, actor.name, "👣-1", "Пропустил ход", "", "");
+    }
+  }
+
+  const ss_ = SpreadsheetApp.getActiveSpreadsheet();
+  const shBase = getSheet_(ss_, CFG.SHEETS.base);
+  moveAnimals_(ss_, gridRange_(shBase).getNumColumns(), gridRange_(shBase).getNumRows());
 
   updateFog();
 }
@@ -97,6 +132,7 @@ function doChopWood() {
     timerInfo
   );
 
+  moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());
   updateFog();
 }
 
@@ -150,6 +186,7 @@ function doQuarry() {
     timerInfo
   );
 
+  moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());
   updateFog();
 }
 
@@ -182,6 +219,7 @@ function doHunt() {
     `⏱️${CFG.REGEN_DAYS.hunt}`
   );
 
+  moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());
   updateFog();
 }
 
@@ -210,6 +248,7 @@ function doFish() {
   setStatus_(ss, actor.row, "🎣");
 
   writeHistory_(ss, actor.name, `🐟+${gained}`, "🎣", "", "");
+  moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());
   updateFog();
 }
 
@@ -242,5 +281,6 @@ function buildHouse() {
   setStatus_(ss, actor.row, "🏠");
 
   writeHistory_(ss, actor.name, "🏠", `${tile}→🏠`, costToString_(cost), "");
+  moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());
   updateFog();
 }

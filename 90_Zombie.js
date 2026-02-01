@@ -32,7 +32,7 @@ function resolveZombieFight_(ss, actor) {
   const baseDmg = 3;
   const dmg = Math.max(1, baseDmg - armor);
 
-  const diceInfo = `🎲${rollP}+⚔️${fresh.atk}=${pScore} vs 🎲${rollZ}+🧟${CFG.ZOMBIE.atk}=${zScore}`;
+  const diceInfo = `🎲${rollP}+⚔️${fresh.atk}=${pScore} vs 🎲${rollZ}+🧟${CFG.ZOMBIE.atk}=${zScore} | 🧟 HP:${CFG.ZOMBIE.hp}`;
 
   if (diff >= 2) {
     killZombie_(ss, fresh, diceInfo);
@@ -43,7 +43,7 @@ function resolveZombieFight_(ss, actor) {
     const newHp = (fresh.hp || 0) - 1;
     setPlayerHp_(ss, fresh.row, newHp);
     setStatus_(ss, fresh.row, "💢🧟");
-    writeHistory_(ss, fresh.name, `❤️-1`, `Отбился от 🧟`, diceInfo, "");
+    writeHistory_(ss, fresh.name, `❤️-1 (HP:${newHp}/${fresh.maxhp || 10})`, `Отбился от 🧟`, diceInfo, "");
     if (newHp <= 0) handleDeath_(ss, fresh.name, "🧟");
     return;
   }
@@ -51,7 +51,7 @@ function resolveZombieFight_(ss, actor) {
   const newHp = (fresh.hp || 0) - dmg;
   setPlayerHp_(ss, fresh.row, newHp);
   setStatus_(ss, fresh.row, "💢🧟");
-  writeHistory_(ss, fresh.name, `❤️-${dmg}`, `Получил удар от 🧟`, diceInfo, "");
+  writeHistory_(ss, fresh.name, `❤️-${dmg} (HP:${newHp}/${fresh.maxhp || 10})`, `Получил удар от 🧟`, diceInfo, "");
   if (newHp <= 0) handleDeath_(ss, fresh.name, "🧟");
 }
 
@@ -71,7 +71,8 @@ function killZombie_(ss, actor, diceInfo) {
   setStatus_(ss, actor.row, "⚔️");
 
   const got = item ? `💰+${gold} 🎁${item}` : `💰+${gold}`;
-  writeHistory_(ss, actor.name, got, `⚔️ Убил 🧟 → ${CFG.ZOMBIE.graveTile}`, diceInfo, `⏱️${CFG.ZOMBIE.respawnDays}`);
+  const mapInfo = `${diceInfo} | ❤️ ${actor.hp}/${actor.maxhp || 10}`;
+  writeHistory_(ss, actor.name, got, `⚔️ Убил 🧟 (HP:${CFG.ZOMBIE.hp}) → ${CFG.ZOMBIE.graveTile}`, mapInfo, `⏱️${CFG.ZOMBIE.respawnDays}`);
 
   syncToolFlags_(ss);
 }

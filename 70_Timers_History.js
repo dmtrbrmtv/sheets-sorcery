@@ -111,8 +111,17 @@ function newDayMaster() {
 
   tickTimers_(ss);
 
+  const rg = gridRange_(getSheet_(ss, CFG.SHEETS.base));
+  const w = rg.getNumColumns();
+  const h = rg.getNumRows();
+  moveNpcs_(ss, w, h);
+
   const active = getActivePlayers_(ss);
-  active.forEach(p => setPlayerMoves_(ss, p.row, CFG.MOVES_PER_DAY));
+  active.forEach(p => {
+    setPlayerMoves_(ss, p.row, CFG.MOVES_PER_DAY);
+    const newHp = Math.min(p.maxhp || 10, (p.hp || 1) + 1);
+    if (newHp > (p.hp || 1)) setPlayerHp_(ss, p.row, newHp);
+  });
 
   const day = getDay_() + 1;
   setDay_(day);
@@ -126,12 +135,19 @@ function skipWeek() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const DAYS = 7;
 
+  const rg = gridRange_(getSheet_(ss, CFG.SHEETS.base));
+  const w = rg.getNumColumns();
+  const h = rg.getNumRows();
+
   for (let d = 1; d <= DAYS; d++) {
     tickTimers_(ss);
+    moveNpcs_(ss, w, h);
 
     const active = getActivePlayers_(ss);
     active.forEach(p => {
       setPlayerMoves_(ss, p.row, CFG.MOVES_PER_DAY);
+      const newHp = Math.min(p.maxhp || 10, (p.hp || 1) + 1);
+      if (newHp > (p.hp || 1)) setPlayerHp_(ss, p.row, newHp);
     });
   }
 

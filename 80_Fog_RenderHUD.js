@@ -26,7 +26,31 @@ function updateFog() {
     out.push(row);
   }
 
+  ensureEntities_(ss, w, h);
+
+  const animals = getAnimals_();
+  const npcs = getNpcs_();
   const players = readPlayers_(ss);
+  const playerCells = new Set(players.map(p => `${p.x},${p.y}`));
+
+  animals.forEach(a => {
+    if (a.x < 1 || a.y < 1 || a.x > w || a.y > h) return;
+    const key = `${a.x},${a.y}`;
+    if (!revealed.has(key)) return;
+    if (playerCells.has(key)) return;
+    const tile = baseTile_(out[a.y - 1][a.x - 1]);
+    out[a.y - 1][a.x - 1] = tile + (a.emoji || "🐇");
+  });
+
+  npcs.forEach(n => {
+    if (n.x < 1 || n.y < 1 || n.x > w || n.y > h) return;
+    const key = `${n.x},${n.y}`;
+    if (!revealed.has(key)) return;
+    if (playerCells.has(key)) return;
+    const tile = baseTile_(out[n.y - 1][n.x - 1]);
+    out[n.y - 1][n.x - 1] = tile + n.emoji;
+  });
+
   players.forEach(p => {
     if (!p.icon) return;
     if (p.x < 1 || p.y < 1 || p.x > w || p.y > h) return;
