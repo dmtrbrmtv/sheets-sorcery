@@ -99,7 +99,7 @@ function renderHud_(ss) {
 
   const rows = players.map(p => {
     const r = Array(totalCols).fill("");
-    r[IDX.name] = p.name;
+    r[IDX.name] = p.icon ? `${p.icon} ${p.name}` : p.name;
     r[IDX.where] = xyToA1_(p.x, p.y);
     r[IDX.hp] = `${p.hp}/${p.maxhp}`;
     r[IDX.moves] = `${p.moves}/${CFG.MOVES_PER_DAY}`;
