@@ -78,7 +78,7 @@ function renderHud_(ss) {
   const totalCols = colToNum_(CFG.GRID.hudEndColA1) - colToNum_(CFG.GRID.hudStartColA1) + 1;
   const header = Array(totalCols).fill("");
 
-  header[IDX.name] = "🙂";
+  header[IDX.name] = "Имя";
   header[IDX.where] = "📍";
   header[IDX.hp] = "❤️";
   header[IDX.moves] = "👣";
