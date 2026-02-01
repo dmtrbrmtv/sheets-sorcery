@@ -81,6 +81,21 @@ function writeHistory_(ss, who, got, what, mapInfo, timerInfo) {
 }
 
 // -------------------- ДНИ --------------------
+function getDay_() {
+  const p = PropertiesService.getDocumentProperties();
+  return Number(p.getProperty("currentDay") || "1");
+}
+
+function setDay_(n) {
+  const p = PropertiesService.getDocumentProperties();
+  p.setProperty("currentDay", String(n));
+}
+
+function updateDayCell_(ss, day) {
+  const shMap = getSheet_(ss, CFG.SHEETS.map);
+  shMap.getRange("C39").setValue(`День ${day}`);
+}
+
 function newDayMaster() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -89,7 +104,11 @@ function newDayMaster() {
   const active = getActivePlayers_(ss);
   active.forEach(p => setPlayerMoves_(ss, p.row, CFG.MOVES_PER_DAY));
 
-  writeHistory_(ss, "🧙‍♂️Мастер", "🎆", `Новый день: 👣=${CFG.MOVES_PER_DAY}`, "", "");
+  const day = getDay_() + 1;
+  setDay_(day);
+  updateDayCell_(ss, day);
+
+  writeHistory_(ss, "🧙‍♂️Мастер", "🎆", `Новый день ${day}: 👣=${CFG.MOVES_PER_DAY}`, "", "");
   updateFog();
 }
 
@@ -97,7 +116,7 @@ function skipWeek() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const DAYS = 7;
 
-  for (let day = 1; day <= DAYS; day++) {
+  for (let d = 1; d <= DAYS; d++) {
     tickTimers_(ss);
 
     const active = getActivePlayers_(ss);
@@ -106,6 +125,10 @@ function skipWeek() {
     });
   }
 
-  writeHistory_(ss, "🧙‍♂️Мастер", "⏩", `Прошла неделя (${DAYS} дней)`, "", "");
+  const day = getDay_() + DAYS;
+  setDay_(day);
+  updateDayCell_(ss, day);
+
+  writeHistory_(ss, "🧙‍♂️Мастер", "⏩", `Прошла неделя → День ${day}`, "", "");
   updateFog();
 }
