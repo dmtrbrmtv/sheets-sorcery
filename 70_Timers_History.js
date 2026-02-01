@@ -77,7 +77,15 @@ function ensureHistoryHeader_() {
 function writeHistory_(ss, who, got, what, mapInfo, timerInfo) {
   const sh = ensureSheet_(ss, CFG.SHEETS.history);
   ensureHistoryHeader_();
-  sh.appendRow([who, what, got || "", mapInfo || "", timerInfo || "", new Date()]);
+  // Insert new entry at row 2 (after header), newest first
+  sh.insertRowAfter(1);
+  sh.getRange(2, 1, 1, 6).setValues([[who, what, got || "", mapInfo || "", timerInfo || "", new Date()]]);
+  // Cap history at 200 rows (header + 199 entries)
+  const maxRows = 200;
+  const lastRow = sh.getLastRow();
+  if (lastRow > maxRows) {
+    sh.deleteRows(maxRows + 1, lastRow - maxRows);
+  }
 }
 
 // -------------------- ДНИ --------------------
