@@ -32,6 +32,36 @@ function getActivePlayers_(ss) {
   return players.slice(0, 1);
 }
 
+// ---- EMOJI + NAME PARSER ----
+/**
+ * Parses a leading emoji (which may include skin tones and combine sequence) from a string
+ * Example: "🧙🏼‍♂️ Dima" -> {icon: "🧙🏼‍♂️", name: "Dima"}
+ * If no leading emoji: {icon: "", name: trimmed input}
+ */
+function splitIconAndName_(raw) {
+  if (!raw) return { icon: "", name: "" };
+  let s = String(raw).trim();
+  // Try to capture one or more leading emoji (including ZWJ sequences)
+  // Emoji pattern covers singleton and ZWJ/skin-tone sequences
+  // Regex adapted for emoji at start of string
+  const emojiRegex = /^(\p{Emoji_Presentation}(?:\uFE0F|\u200D[\p{Emoji}\uFE0F]+)*|[\p{Emoji}\u200D\ufe0f]+)\s*/u;
+  const match = s.match(emojiRegex);
+  if (match && match[1]) {
+    const icon = match[1];
+    const name = s.slice(match[0].length).trim();
+    return { icon, name };
+  }
+  // Fallback: try first emoji codepoint with optional skin tones or ZWJ (for more flexibility)
+  const altRegex = /^((?:[\uD800-\uDBFF][\uDC00-\uDFFF]|\uFE0F|\u200D|[\p{Emoji}\uFE0F])+)\s*/u;
+  const altMatch = s.match(altRegex);
+  if (altMatch && altMatch[1]) {
+    const icon = altMatch[1];
+    const name = s.slice(altMatch[0].length).trim();
+    return { icon, name };
+  }
+  return { icon: "", name: s };
+}
+
 function readPlayers_(ss) {
   const sh = getSheet_(ss, CFG.SHEETS.players);
   const data = sh.getDataRange().getValues();
@@ -71,35 +101,45 @@ function readPlayers_(ss) {
 
   const res = [];
   for (let i = 1; i < data.length; i++) {
-  const row = data[i];
-  const name = String(row[col.name] || "").trim();
-  if (!name) continue;
+    const row = data[i];
+    const rawName = String(row[col.name] || "").trim();
+    if (!rawName) continue;
 
-  let icon = col.icon !== -1 ? String(row[col.icon] || "").trim() : "";
-  if (icon.includes("@")) icon = ""; // 🔒 защита
+    const split = splitIconAndName_(rawName);
+    let icon = split.icon;
+    let name = split.name;
+    // Fallback/backward compatibility:
+    //  - If no leading emoji found, fall back to icon column (if present)
+    if (!icon) {
+      icon = col.icon !== -1 ? String(row[col.icon] || "").trim() : "";
+    }
+    // Ensure icon is not an email
+    if (icon.includes("@")) icon = "";
+    // name should always be non-empty, but protect: if stripping emoji produces empty name, use fallback rawName
+    if (!name) name = rawName;
 
-  res.push({
-    row: i + 1,
-    name,
-    icon,
-    hp: col.hp !== -1 ? num_(row[col.hp], 1) : 1,
-    maxhp: col.maxhp !== -1 ? num_(row[col.maxhp], 1) : (col.hp !== -1 ? num_(row[col.hp], 1) : 1),
-    atk: col.atk !== -1 ? num_(row[col.atk], 0) : 0,
-    armor: col.armor !== -1 ? num_(row[col.armor], 0) : 0,
-    gold: col.gold !== -1 ? num_(row[col.gold], 0) : 0,
-    herb: col.herb !== -1 ? num_(row[col.herb], 0) : 0,
-    food: col.food !== -1 ? num_(row[col.food], 0) : 0,
-    water: col.water !== -1 ? num_(row[col.water], 0) : 0,
-    fish: col.fish !== -1 ? num_(row[col.fish], 0) : 0,
-    wood: col.wood !== -1 ? num_(row[col.wood], 0) : 0,
-    stone: col.stone !== -1 ? num_(row[col.stone], 0) : 0,
-    moves: num_(row[col.moves], 0),
-    x: num_(row[col.x], 1),
-    y: num_(row[col.y], 1),
-    status: col.status !== -1 ? String(row[col.status] || "").trim() : "",
-    penalty: col.penalty !== -1 ? String(row[col.penalty] || "").trim() : "",
-  });
-}
+    res.push({
+      row: i + 1,
+      name,
+      icon,
+      hp: col.hp !== -1 ? num_(row[col.hp], 1) : 1,
+      maxhp: col.maxhp !== -1 ? num_(row[col.maxhp], 1) : (col.hp !== -1 ? num_(row[col.hp], 1) : 1),
+      atk: col.atk !== -1 ? num_(row[col.atk], 0) : 0,
+      armor: col.armor !== -1 ? num_(row[col.armor], 0) : 0,
+      gold: col.gold !== -1 ? num_(row[col.gold], 0) : 0,
+      herb: col.herb !== -1 ? num_(row[col.herb], 0) : 0,
+      food: col.food !== -1 ? num_(row[col.food], 0) : 0,
+      water: col.water !== -1 ? num_(row[col.water], 0) : 0,
+      fish: col.fish !== -1 ? num_(row[col.fish], 0) : 0,
+      wood: col.wood !== -1 ? num_(row[col.wood], 0) : 0,
+      stone: col.stone !== -1 ? num_(row[col.stone], 0) : 0,
+      moves: num_(row[col.moves], 0),
+      x: num_(row[col.x], 1),
+      y: num_(row[col.y], 1),
+      status: col.status !== -1 ? String(row[col.status] || "").trim() : "",
+      penalty: col.penalty !== -1 ? String(row[col.penalty] || "").trim() : "",
+    });
+  }
 
   return res;
 }
