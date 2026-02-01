@@ -56,12 +56,12 @@ function doChopWood() {
 
   const tile = readBaseTile_(ss, actor.x, actor.y);
 
-  if (!tile || !new Set(["🌳","🌲","🌿","🌱"]).has(tile)) {
+  if (!tile || !CFG.RESOURCES.WOOD_TILES.has(tile)) {
     writeHistory_(ss, actor.name, "🪵0", "Рубка только на 🌳/🌲/🌿/🌱", "", "");
     return;
   }
 
-  if (tile === "🌱" && hasTimerAt_(ss, actor.x, actor.y)) {
+  if (tile === CFG.RESOURCES.WOOD_DEPLETED && hasTimerAt_(ss, actor.x, actor.y)) {
     writeHistory_(ss, actor.name, "⏳", "Пень отдыхает", "", "");
     return;
   }
@@ -84,7 +84,7 @@ function doChopWood() {
   // Always start regen timer after any interaction (if not already exists)
   let timerInfo = "";
   if (!hasTimerAt_(ss, actor.x, actor.y)) {
-    addTimer_(ss, actor.x, actor.y, "🌳", CFG.REGEN_DAYS.wood, "wood", actor.name);
+    addTimer_(ss, actor.x, actor.y, CFG.RESOURCES.WOOD_REGEN_TO, CFG.REGEN_DAYS.wood, "wood", actor.name);
     timerInfo = `⏱️${CFG.REGEN_DAYS.wood}`;
   }
 
@@ -108,12 +108,12 @@ function doQuarry() {
 
   const tile = readBaseTile_(ss, actor.x, actor.y);
 
-  if (!tile || !new Set(["🗻","🪨","🧱","🕳️"]).has(tile)) {
+  if (!tile || !CFG.RESOURCES.STONE_TILES.has(tile)) {
     writeHistory_(ss, actor.name, "🪨0", "Каменоломня только на 🗻/🪨/🧱", "", "");
     return;
   }
 
-  if (tile === "🕳️" && hasTimerAt_(ss, actor.x, actor.y)) {
+  if (tile === CFG.RESOURCES.STONE_DEPLETED && hasTimerAt_(ss, actor.x, actor.y)) {
     writeHistory_(ss, actor.name, "⏳", "Шахта отдыхает", "", "");
     return;
   }
@@ -137,7 +137,7 @@ function doQuarry() {
   // Always start regen timer after any interaction (if not already exists)
   let timerInfo = "";
   if (!hasTimerAt_(ss, actor.x, actor.y)) {
-    addTimer_(ss, actor.x, actor.y, "🗻", CFG.REGEN_DAYS.stone, "stone", actor.name);
+    addTimer_(ss, actor.x, actor.y, CFG.RESOURCES.STONE_REGEN_TO, CFG.REGEN_DAYS.stone, "stone", actor.name);
     timerInfo = `⏱️${CFG.REGEN_DAYS.stone}`;
   }
 

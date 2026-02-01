@@ -51,6 +51,14 @@ const CFG = {
 
   RESOURCES: {
     HUNT_TILES: new Set(["🦌", "🐗", "🐇"]),
+    // Wood sequence: 🌳/🌲 → 🌿 → 🌱 → (timer) → 🌳
+    WOOD_TILES: new Set(["🌳", "🌲", "🌿", "🌱"]),
+    WOOD_DEPLETED: "🌱",
+    WOOD_REGEN_TO: "🌳",
+    // Stone sequence: 🗻 → 🪨 → 🧱 → 🕳️ → (timer) → 🗻
+    STONE_TILES: new Set(["🗻", "🪨", "🧱", "🕳️"]),
+    STONE_DEPLETED: "🕳️",
+    STONE_REGEN_TO: "🗻",
   },
 
   MOVES_PER_DAY: 6,
