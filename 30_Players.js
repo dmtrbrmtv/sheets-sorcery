@@ -218,10 +218,12 @@ function hasItem_(ss, playerName, itemEmoji) {
   const cItem = head.indexOf("Предмет");
   if (cWho === -1 || cItem === -1) return false;
 
+  const playerNameNorm = splitIconAndName_(playerName).name || playerName;
   for (let i = 1; i < values.length; i++) {
     const who = String(values[i][cWho] || "").trim();
+    const whoNorm = splitIconAndName_(who).name || who;
     const it = String(values[i][cItem] || "").trim();
-    if (who === playerName && it.includes(itemEmoji)) return true;
+    if (whoNorm === playerNameNorm && it.includes(itemEmoji)) return true;
   }
   return false;
 }
@@ -249,13 +251,15 @@ function syncToolFlags_(ss) {
     const who = String(eData[i][eWho] || "").trim();
     const it = String(eData[i][eItem] || "").trim();
     if (!who || !it) continue;
-    if (!itemsByWho.has(who)) itemsByWho.set(who, []);
-    itemsByWho.get(who).push(it);
+    const key = splitIconAndName_(who).name || who;
+    if (!itemsByWho.has(key)) itemsByWho.set(key, []);
+    itemsByWho.get(key).push(it);
   }
 
   for (let r = 1; r < pData.length; r++) {
-    const name = String(pData[r][colName] || "").trim();
-    if (!name) continue;
+    const rawName = String(pData[r][colName] || "").trim();
+    if (!rawName) continue;
+    const name = splitIconAndName_(rawName).name || rawName;
 
     const arr = itemsByWho.get(name) || [];
     const hasAxe = arr.some(s => String(s).includes("🪓"));
