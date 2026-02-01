@@ -74,16 +74,16 @@ function doChopWood() {
   setStatus_(ss, actor.row, "🪓");
 
   let nextTile = tile;
-  let startTimer = false;
 
   if (tile === "🌳" || tile === "🌲") nextTile = "🌿";
   else if (tile === "🌿") nextTile = "🌱";
-  else if (tile === "🌱") { nextTile = "🌱"; startTimer = true; }
+  else if (tile === "🌱") nextTile = "🌱";
 
   setBaseTile_(ss, actor.x, actor.y, nextTile);
 
+  // Always start regen timer after any interaction (if not already exists)
   let timerInfo = "";
-  if (startTimer) {
+  if (!hasTimerAt_(ss, actor.x, actor.y)) {
     addTimer_(ss, actor.x, actor.y, "🌳", CFG.REGEN_DAYS.wood, "wood", actor.name);
     timerInfo = `⏱️${CFG.REGEN_DAYS.wood}`;
   }
@@ -126,17 +126,17 @@ function doQuarry() {
   setStatus_(ss, actor.row, "⛏️");
 
   let nextTile = tile;
-  let startTimer = false;
 
   if (tile === "🗻") nextTile = "🪨";
   else if (tile === "🪨") nextTile = "🧱";
-  else if (tile === "🧱") { nextTile = "🕳️"; startTimer = true; }
-  else if (tile === "🕳️") { nextTile = "🕳️"; startTimer = true; }
+  else if (tile === "🧱") nextTile = "🕳️";
+  else if (tile === "🕳️") nextTile = "🕳️";
 
   setBaseTile_(ss, actor.x, actor.y, nextTile);
 
+  // Always start regen timer after any interaction (if not already exists)
   let timerInfo = "";
-  if (startTimer) {
+  if (!hasTimerAt_(ss, actor.x, actor.y)) {
     addTimer_(ss, actor.x, actor.y, "🗻", CFG.REGEN_DAYS.stone, "stone", actor.name);
     timerInfo = `⏱️${CFG.REGEN_DAYS.stone}`;
   }
