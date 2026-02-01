@@ -32,36 +32,6 @@ function getActivePlayers_(ss) {
   return players.slice(0, 1);
 }
 
-// ---- EMOJI + NAME PARSER ----
-/**
- * Parses a leading emoji (which may include skin tones and combine sequence) from a string
- * Example: "🧙🏼‍♂️ Dima" -> {icon: "🧙🏼‍♂️", name: "Dima"}
- * If no leading emoji: {icon: "", name: trimmed input}
- */
-function splitIconAndName_(raw) {
-  if (!raw) return { icon: "", name: "" };
-  let s = String(raw).trim();
-  // Try to capture one or more leading emoji (including ZWJ sequences)
-  // Emoji pattern covers singleton and ZWJ/skin-tone sequences
-  // Regex adapted for emoji at start of string
-  const emojiRegex = /^(\p{Emoji_Presentation}(?:\uFE0F|\u200D[\p{Emoji}\uFE0F]+)*|[\p{Emoji}\u200D\ufe0f]+)\s*/u;
-  const match = s.match(emojiRegex);
-  if (match && match[1]) {
-    const icon = match[1];
-    const name = s.slice(match[0].length).trim();
-    return { icon, name };
-  }
-  // Fallback: try first emoji codepoint with optional skin tones or ZWJ (for more flexibility)
-  const altRegex = /^((?:[\uD800-\uDBFF][\uDC00-\uDFFF]|\uFE0F|\u200D|[\p{Emoji}\uFE0F])+)\s*/u;
-  const altMatch = s.match(altRegex);
-  if (altMatch && altMatch[1]) {
-    const icon = altMatch[1];
-    const name = s.slice(altMatch[0].length).trim();
-    return { icon, name };
-  }
-  return { icon: "", name: s };
-}
-
 function readPlayers_(ss) {
   const sh = getSheet_(ss, CFG.SHEETS.players);
   const data = sh.getDataRange().getValues();

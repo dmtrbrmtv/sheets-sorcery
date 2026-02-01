@@ -8,18 +8,23 @@
  * Emoji detection tries to catch multi-char emoji (with ZWJ, skin tone, etc).
  */
 function splitIconAndName_(raw) {
-  if (typeof raw !== "string") return { icon: "", name: "" };
-  // Regex covers multi-char emoji clusters at start of string
-  // E.g. "🧙🏼‍♂️ Dima", "🐉Anna", etc.
-  // See: https://stackoverflow.com/a/58355145/188421
-  const emojiRegex = /^(\p{Extended_Pictographic}[\p{Extended_Pictographic}\u200D\uFE0F]*)\s*(.*)$/u;
-  const m = raw.match(emojiRegex);
-  if (m) {
-    const icon = m[1] ? m[1].trim() : "";
-    const name = m[2] ? m[2].trim() : "";
+  if (!raw) return { icon: "", name: "" };
+  let s = String(raw).trim();
+  const emojiRegex = /^(\p{Emoji_Presentation}(?:\uFE0F|\u200D[\p{Emoji}\uFE0F]+)*|[\p{Emoji}\u200D\ufe0f]+)\s*/u;
+  const match = s.match(emojiRegex);
+  if (match && match[1]) {
+    const icon = match[1];
+    const name = s.slice(match[0].length).trim();
     return { icon, name };
   }
-  return { icon: "", name: raw.trim() };
+  const altRegex = /^((?:[\uD800-\uDBFF][\uDC00-\uDFFF]|\uFE0F|\u200D|[\p{Emoji}\uFE0F])+)\s*/u;
+  const altMatch = s.match(altRegex);
+  if (altMatch && altMatch[1]) {
+    const icon = altMatch[1];
+    const name = s.slice(altMatch[0].length).trim();
+    return { icon, name };
+  }
+  return { icon: "", name: s };
 }
 
 const CFG = {
