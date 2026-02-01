@@ -3,9 +3,7 @@
  *******************************/
 
 function readBaseTile_(ss, x, y) {
-  const shBase = ss.getSheetByName(CFG.SHEETS.base);
-  if (!shBase) throw new Error(`Не найден лист '${CFG.SHEETS.base}'`);
-
+  const shBase = getSheet_(ss, CFG.SHEETS.base);
   const rg = gridRange_(shBase);
   const w = rg.getNumColumns();
   const h = rg.getNumRows();
