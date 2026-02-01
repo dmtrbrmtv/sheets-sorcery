@@ -71,8 +71,8 @@ const CFG = {
 
   ZOMBIE: {
     aliveTile: "🧟",
-    graveTile: "⚰️",
-    respawnDays: 5,
+    graveTile: "🪦",  // Headstone tile when zombie is killed
+    respawnDays: 5,   // Days until zombie respawns
 
     atk: 2,
     hp: 6,

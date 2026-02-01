@@ -71,7 +71,7 @@ function killZombie_(ss, actor, diceInfo) {
   setStatus_(ss, actor.row, "⚔️");
 
   const got = item ? `💰+${gold} 🎁${item}` : `💰+${gold}`;
-  writeHistory_(ss, actor.name, got, `⚔️ Убил 🧟 → ⚰️`, diceInfo, `⏱️${CFG.ZOMBIE.respawnDays}`);
+  writeHistory_(ss, actor.name, got, `⚔️ Убил 🧟 → ${CFG.ZOMBIE.graveTile}`, diceInfo, `⏱️${CFG.ZOMBIE.respawnDays}`);
 
   syncToolFlags_(ss);
 }
