@@ -13,7 +13,7 @@ IMPORTANT:
 
 ---
 
-## Analysis (codebase scan)
+## Analysis (codebase scan) 02.02..2026
 
 ### 1) Sheets used in CFG and where they are referenced
 
@@ -86,4 +86,59 @@ Defined in **00_Config.js** (`CFG.SHEETS`):
   1. **00_Config.js** (lines 10–22): uses `\p{Extended_Pictographic}…` regex; returns `{ icon, name }`.
   2. **30_Players.js** (lines 41–62): duplicate implementation with different regex (`\p{Emoji_Presentation}…` and a fallback).  
 
-  Only **30_Players.js** uses it (in `readPlayers_`). So **player name and icon are parsed** in **30_Players.js** inside `readPlayers_`, using the local `splitIconAndName_` and the “icon is not an email” check; **email** is not parsed as a field, only used to blank the icon when it contains `@`.
+  Only **30_Players.js** uses it (in `readPlayers_`). So **player name and icon are parsed** in **30_Players.js** inside `readPlayers_`, using the local `splitIconAndName_` and the "icon is not an email" check; **email** is not parsed as a field, only used to blank the icon when it contains `@`.
+
+---
+
+## Refactor plan (analysis only — no code changes yet)
+
+**Principles:** GAME_RULES.md is the single source of truth. Do not change gameplay rules or data contracts. Only remove duplication, dead code, and inconsistencies. If rule contradictions are found, report first; do not fix yet.
+
+### Rule contradictions (code vs CFG / docs)
+
+- **None detected.** CFG constants (SHEETS, GRID, FOG, BLOCKED, RESOURCES.HUNT_TILES, etc.) are used consistently. Sheet names, grid, fog, and parsing behavior match the analysis above.
+
+---
+
+### 1) Safe refactor plan (ordered steps)
+
+| Step | Scope | Risk | Description |
+|------|--------|------|-------------|
+| **1** | 00_Config.js, 30_Players.js | Low | Remove duplicate `splitIconAndName_`: keep a single implementation (see "Smallest first step" below). |
+| **2** | 30_Players.js, 70_Timers_History.js, 40_WorldBase.js | Low | Unify sheet access: use `getSheet_` or `ensureSheet_` everywhere instead of mixing with `ss.getSheetByName(...)`. |
+| **3** | 30_Players.js | Low | Optionally group "active" menu handlers with fog/HUD or a dedicated place if file grows; no change to behavior or contracts. |
+| **4** | (Future) | — | Any further cleanup only after 1–2 are done and tested. |
+
+**Out of scope for this refactor:** gameplay rules, CFG values, sheet names, column semantics, menu items, or parsing contract (name/icon/email behavior).
+
+---
+
+### 2) Duplicated logic and unclear responsibilities
+
+**Duplication**
+
+- **`splitIconAndName_(raw)`** — Defined in **00_Config.js** (lines 10–22) and **30_Players.js** (lines 41–62). Different regexes (Config: `Extended_Pictographic`; Players: `Emoji_Presentation` + fallback). Only **30_Players.js** calls it (from `readPlayers_`). In Apps Script load order, 30_Players runs after 00_Config, so the **30_Players** implementation is the one that actually runs; the **00_Config** version is dead code. **Action:** One canonical implementation; remove the other (prefer Config as helper, or keep in Players; align behavior with current runtime).
+
+- **Sheet access pattern** — **getSheet_** / **ensureSheet_** used in some places; **ss.getSheetByName(CFG.SHEETS.xxx)** in others, with manual null checks. **30_Players.js:** mix of `getSheet_` and `ss.getSheetByName` (166, 243, 262, 263). **70_Timers_History.js:** `ensureSheet_` vs `ss.getSheetByName` (27, 42) with `if (!sh) return`. **40_WorldBase.js:** `ss.getSheetByName` + manual throw (6–7) vs `getSheet_` (19). **Action:** Use helpers consistently: "must exist" → `getSheet_`; "create if missing" → `ensureSheet_`.
+
+**Unclear / mixed responsibilities**
+
+- **30_Players.js** contains: (a) "Active" mode and menu entry points (`setActiveOnlyMe`, `setActiveFirst5`), (b) player parsing and column mapping (`readPlayers_`, `splitIconAndName_`), (c) player mutators, (d) equip sheet (ensure header, add item, has item), (e) sync of equip → player tool flags (`syncToolFlags_`), (f) ensure-players-columns. No contradiction with GAME_RULES; only note for future splitting if the file grows.
+
+- **80_Fog_RenderHUD.js** calls `syncToolFlags_(ss)` after updating fog. That couples fog render to "sync tool flags from equip"; acceptable by current design, but responsibility is slightly mixed. No change suggested here; only document.
+
+**Dead code**
+
+- **`splitIconAndName_` in 00_Config.js** is never used at runtime (overwritten by 30_Players.js). Removing the duplicate (Step 1) removes this dead definition.
+
+---
+
+### 3) Smallest first refactor step
+
+**Step 1 (recommended first):** Consolidate `splitIconAndName_` and remove duplication.
+
+- **Option A (preferred):** Keep **one** implementation in **00_Config.js** (canonical helper next to CFG). Make it **behaviorally match** the current runtime implementation in **30_Players.js** (same regex/fallback and edge cases: empty input, trim, `{ icon, name }`). Remove the entire `splitIconAndName_` function (and the "EMOJI + NAME PARSER" comment block) from **30_Players.js**. In **30_Players.js**, keep the rest of `readPlayers_` unchanged (including the "icon column" fallback and `if (icon.includes("@")) icon = ""`). **Verification:** Run a test that uses `readPlayers_` (e.g. "Прыгнуть к себе" or "Move") and confirm player name/icon still parse correctly for a row with leading emoji and a row with separate icon column.
+
+- **Option B:** Keep the implementation only in **30_Players.js** and remove it from **00_Config.js** (so Config has no parsing helper). Same verification as above.
+
+**Why this first:** Single file change (or two small edits), no CFG or sheet changes, no new APIs. Only removes dead code and one duplicate; keeps parsing contract and gameplay unchanged.
