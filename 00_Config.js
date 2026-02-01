@@ -10,18 +10,13 @@
 function splitIconAndName_(raw) {
   if (!raw) return { icon: "", name: "" };
   let s = String(raw).trim();
-  const emojiRegex = /^(\p{Emoji_Presentation}(?:\uFE0F|\u200D[\p{Emoji}\uFE0F]+)*|[\p{Emoji}\u200D\ufe0f]+)\s*/u;
+  // Regex handles emoji with skin tone modifiers (🏻🏼🏽🏾🏿) and ZWJ sequences
+  // Pattern: base emoji + optional skin tone + (ZWJ + emoji + optional skin tone)* + optional variation selector
+  const emojiRegex = /^(\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?)*)\s*/u;
   const match = s.match(emojiRegex);
   if (match && match[1]) {
     const icon = match[1];
     const name = s.slice(match[0].length).trim();
-    return { icon, name };
-  }
-  const altRegex = /^((?:[\uD800-\uDBFF][\uDC00-\uDFFF]|\uFE0F|\u200D|[\p{Emoji}\uFE0F])+)\s*/u;
-  const altMatch = s.match(altRegex);
-  if (altMatch && altMatch[1]) {
-    const icon = altMatch[1];
-    const name = s.slice(altMatch[0].length).trim();
     return { icon, name };
   }
   return { icon: "", name: s };
