@@ -36,15 +36,14 @@ function move_(dir) {
 
   setPlayerXYMoves_(ss, actor.row, nx, ny, actor.moves - 1);
   setStatus_(ss, actor.row, "🚶");
-  updateFog(); // Immediate visual update before history/combat/animals
-
   writeHistory_(ss, actor.name, `👣-1, ${tile}`, `Переместился (${x},${y}) → (${nx},${ny})`, "", "");
+
   handleEncounter_(ss, actor.name);
   handleNpcEncounter_(ss, actor.name);
   const rg = gridRange_(getSheet_(ss, CFG.SHEETS.base));
   moveAnimals_(ss, rg.getNumColumns(), rg.getNumRows());
 
-  updateFog(); // Final state (combat result, animal positions)
+  updateFog();
 }
 
 function waitTurn() {
@@ -197,8 +196,11 @@ function doHunt() {
 
   if (actor.moves <= 0) { writeHistory_(ss, actor.name, "👣0", "Нет ходов", "", ""); return; }
 
-  const tile = readBaseTile_(ss, actor.x, actor.y);
-  if (!tile || !CFG.RESOURCES.HUNT_TILES.has(tile)) {
+  const baseTile = readBaseTile_(ss, actor.x, actor.y);
+  const animal = getAnimals_().find(a => a.x === actor.x && a.y === actor.y);
+  const huntableTile = animal ? (animal.emoji || "🐇") : baseTile;
+
+  if (!huntableTile || !CFG.RESOURCES.HUNT_TILES.has(huntableTile)) {
     writeHistory_(ss, actor.name, "🍖0", "Охота только на 🦌/🐗/🐇", "", "");
     return;
   }
@@ -208,16 +210,21 @@ function doHunt() {
   setPlayerMoves_(ss, actor.row, actor.moves - 1);
   setStatus_(ss, actor.row, "🏹");
 
-  setBaseTile_(ss, actor.x, actor.y, "⬜️");
-  addTimer_(ss, actor.x, actor.y, tile, CFG.REGEN_DAYS.hunt, "hunt", actor.name);
+  if (animal) {
+    const remaining = getAnimals_().filter(a => !(a.x === actor.x && a.y === actor.y));
+    setAnimals_(remaining);
+  } else {
+    setBaseTile_(ss, actor.x, actor.y, "⬜️");
+    addTimer_(ss, actor.x, actor.y, huntableTile, CFG.REGEN_DAYS.hunt, "hunt", actor.name);
+  }
 
   writeHistory_(
     ss,
     actor.name,
     `🍖+${gained}`,
-    `${tile}→⬜️`,
+    `${huntableTile}→⬜️`,
     "",
-    `⏱️${CFG.REGEN_DAYS.hunt}`
+    animal ? "" : `⏱️${CFG.REGEN_DAYS.hunt}`
   );
 
   moveAnimals_(ss, gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumColumns(), gridRange_(getSheet_(ss, CFG.SHEETS.base)).getNumRows());

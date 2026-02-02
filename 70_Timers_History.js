@@ -65,9 +65,9 @@ function tickTimers_(ss) {
 }
 
 // -------------------- ИСТОРИЯ --------------------
-function ensureHistoryHeader_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ensureSheet_(ss, CFG.SHEETS.history);
+function ensureHistoryHeader_(ss) {
+  const spreadsheet = ss || SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ensureSheet_(spreadsheet, CFG.SHEETS.history);
   const v = sh.getDataRange().getValues();
   if (!v.length || !String(v[0][0] || "")) {
     sh.getRange(1, 1, 1, 6).setValues([["Кто", "Что", "Получил", "Карта", "Таймер", "Когда"]]);
@@ -76,16 +76,15 @@ function ensureHistoryHeader_() {
 
 function writeHistory_(ss, who, got, what, mapInfo, timerInfo) {
   const sh = ensureSheet_(ss, CFG.SHEETS.history);
-  ensureHistoryHeader_();
-  // Insert new entry at row 2 (after header), newest first
-  sh.insertRowAfter(1);
-  sh.getRange(2, 1, 1, 6).setValues([[who, what, got || "", mapInfo || "", timerInfo || "", new Date()]]);
-  // Cap history at 200 rows (header + 199 entries)
-  const maxRows = 200;
-  const lastRow = sh.getLastRow();
-  if (lastRow > maxRows) {
-    sh.deleteRows(maxRows + 1, lastRow - maxRows);
-  }
+  ensureHistoryHeader_(ss);
+  const data = sh.getDataRange().getValues();
+  const header = data.length ? [data[0]] : [["Кто", "Что", "Получил", "Карта", "Таймер", "Когда"]];
+  const rows = data.length > 1 ? data.slice(1) : [];
+  const newRow = [who, what, got || "", mapInfo || "", timerInfo || "", new Date()];
+  const all = header.concat([newRow], rows).slice(0, 201);
+  const numRows = all.length;
+  sh.getRange(1, 1, numRows, 6).setValues(all);
+  if (data.length > numRows) sh.getRange(numRows + 1, 1, data.length - numRows, 6).clearContent();
 }
 
 // -------------------- ДНИ --------------------

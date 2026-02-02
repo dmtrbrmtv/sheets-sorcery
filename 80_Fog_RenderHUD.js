@@ -4,6 +4,7 @@
 
 function updateFog() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const activeSheet = ss.getActiveSheet();
   const shMap = getSheet_(ss, CFG.SHEETS.map);
   const shBase = getSheet_(ss, CFG.SHEETS.base);
 
@@ -68,6 +69,7 @@ function updateFog() {
   updateDayCell_(ss);
 
   SpreadsheetApp.flush();
+  if (activeSheet) ss.setActiveSheet(activeSheet);
 }
 
 function jumpToMe() {
