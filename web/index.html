@@ -8,22 +8,81 @@
 <body>
 
   <div class="layout">
-    <div id="grid"></div>
-
-    <aside class="sidebar">
+    <!-- LEFT: History + Rules (INFO ONLY) -->
+    <aside class="col-left">
       <div class="panel">
-        <h3>📜 История</h3>
+        <div class="history-header">
+          <h3>📜 История</h3>
+          <div class="history-tabs">
+            <button type="button" id="history-tab-global" class="history-tab active" title="Вся история (вкл/выкл)">🗺️</button>
+            <button type="button" id="history-tab-player" class="history-tab" title="Мои действия и диалоги (вкл/выкл)">👤</button>
+          </div>
+        </div>
         <div id="history" class="history"></div>
       </div>
       <div class="panel">
-        <h3>⚡ Действия</h3>
-        <div id="actions" class="actions"></div>
+        <h3>📋 Правила</h3>
+        <div id="rules" class="rules"></div>
       </div>
-      <button id="reset" class="reset-btn">🔄 Сброс</button>
+      <button id="reset" type="button" class="reset-btn">🔄 Сброс</button>
+    </aside>
+
+    <!-- CENTER: Map (always centered, camera on player) -->
+    <main class="col-center">
+      <div class="map-wrapper">
+        <div class="map-container">
+          <div id="map-bg" class="map-bg"></div>
+          <div id="grid"></div>
+          <div id="day-overlay" class="phase-overlay phase-day" aria-hidden="true"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT: Player Panel (HUD) -->
+    <aside class="col-right">
+      <div class="panel player-panel">
+        <h3>🧙 Вы</h3>
+        <div id="player-stats"></div>
+      </div>
+      <div class="panel">
+        <h3>🎒 Инвентарь</h3>
+        <div id="inventory"></div>
+      </div>
+      <div class="panel actions-panel">
+        <h3>⚡ Действия</h3>
+        <div id="context-hints" class="context-hints"></div>
+        <div id="actions" class="actions"></div>
+        <div id="combat-panel" class="combat-panel" style="display:none">
+          <div class="combat-versus">
+            <div id="combat-player" class="combat-fighter"></div>
+            <div class="combat-vs">против</div>
+            <div id="combat-enemy" class="combat-fighter"></div>
+          </div>
+          <div id="combat-log" class="combat-log"></div>
+          <div class="combat-buttons">
+            <button data-combat="attack">⚔️ Атака</button>
+            <button data-combat="defend">🛡️ Защита</button>
+            <button data-combat="run">🏃 Бег</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel craft-panel">
+        <h3>🔨 Крафт</h3>
+        <div class="craft-tabs">
+          <button type="button" id="craft-tab-weapons" class="craft-tab">⚔️ Оружие</button>
+          <button type="button" id="craft-tab-items" class="craft-tab">🎒 Предметы</button>
+        </div>
+        <div class="craft-layout">
+          <div id="craft-list" class="craft-list"></div>
+          <div id="craft-details" class="craft-details"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>📋 Квесты</h3>
+        <div id="quests" class="quests"></div>
+      </div>
     </aside>
   </div>
-
-  <div id="debug" class="debug-panel"></div>
 
   <script type="module" src="./game.js"></script>
 </body>

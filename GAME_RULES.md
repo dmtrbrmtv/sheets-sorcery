@@ -142,3 +142,16 @@ Defined in **00_Config.js** (`CFG.SHEETS`):
 - **Option B:** Keep the implementation only in **30_Players.js** and remove it from **00_Config.js** (so Config has no parsing helper). Same verification as above.
 
 **Why this first:** Single file change (or two small edits), no CFG or sheet changes, no new APIs. Only removes dead code and one duplicate; keeps parsing contract and gameplay unchanged.
+
+---
+
+## Web version — placeholders (not implemented yet)
+
+These mechanics are described in CRAFT_SPECS but not yet implemented in combat. Can be added later without changing the current structure.
+
+| Feature | Weapon | Description |
+|---------|--------|--------------|
+| Hammer knock out | ⚒️ Молот и булава | Оглушение врага (stun) |
+| Trident pre-battle hit | 🔱 Трезубец | Pre-hit по соседним клеткам до начала боя |
+| Bow pre-battle hit | 🏹 Лук | Pre-hit на 1 клетку до начала боя |
+| Bow weapon switching | 🏹 Лук | Переключение оружия в бою (лук ↔ ближний бой) |
