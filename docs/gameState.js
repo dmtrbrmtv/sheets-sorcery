@@ -1,7 +1,7 @@
 // ===== Sheets & Sorcery: Game State =====
 
 import { GRID_W, GRID_H, CFG } from "./config.js";
-import { generateWorld } from "./world_base.js";
+import { WORLD } from "./world_base.js";
 import { baseTile, a1ToXY, randInt } from "./utils.js";
 import { proceduralTile } from "./procedural.js";
 
@@ -21,7 +21,7 @@ function logHistory(state, who, what, opts = {}) {
 
 export function createInitialState() {
   const worldSeed = Math.floor(Math.random() * 1000000);
-  const world = generateWorld(worldSeed).map(row => row.map(c => baseTile(c)));
+  const world = WORLD.map(row => [...row.map(c => baseTile(c))]);
   const pos = findFirstWalkable(world);
 
   const playerCell = new Set([`${pos.x},${pos.y}`]);
