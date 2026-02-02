@@ -36,14 +36,15 @@ function move_(dir) {
 
   setPlayerXYMoves_(ss, actor.row, nx, ny, actor.moves - 1);
   setStatus_(ss, actor.row, "🚶");
-  writeHistory_(ss, actor.name, `👣-1, ${tile}`, `Переместился (${x},${y}) → (${nx},${ny})`, "", "");
+  updateFog(); // Immediate visual update before history/combat/animals
 
+  writeHistory_(ss, actor.name, `👣-1, ${tile}`, `Переместился (${x},${y}) → (${nx},${ny})`, "", "");
   handleEncounter_(ss, actor.name);
   handleNpcEncounter_(ss, actor.name);
   const rg = gridRange_(getSheet_(ss, CFG.SHEETS.base));
   moveAnimals_(ss, rg.getNumColumns(), rg.getNumRows());
 
-  updateFog();
+  updateFog(); // Final state (combat result, animal positions)
 }
 
 function waitTurn() {
