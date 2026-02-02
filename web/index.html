@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sheets & Sorcery</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <div class="layout">
+    <div id="grid"></div>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h3>📜 История</h3>
+        <div id="history" class="history"></div>
+      </div>
+      <div class="panel">
+        <h3>⚡ Действия</h3>
+        <div id="actions" class="actions"></div>
+      </div>
+      <button id="reset" class="reset-btn">🔄 Сброс</button>
+    </aside>
+  </div>
+
+  <div id="debug" class="debug-panel"></div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

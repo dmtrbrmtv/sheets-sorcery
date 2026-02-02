@@ -1,0 +1,11 @@
+{
+  "name": "sheets-sorcery",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "import-map": "node tools/import-map.js"
+  },
+  "devDependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
