@@ -7,7 +7,7 @@ export default defineConfig({
 			provider: "v8",
 			reporter: ["text", "json", "html"],
 			include: ["docs/**/*.js"],
-			exclude: ["docs/game.js", "docs/world_base.js", "docs/procedural.js"],
+			exclude: ["docs/game.js", "docs/procedural.js"],
 			thresholds: {
 				statements: 70,
 				branches: 60,

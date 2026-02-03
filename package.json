@@ -7,7 +7,6 @@
 		"lint": "biome check . && knip",
 		"lint:fix": "biome check --write .",
 		"knip": "knip",
-		"import-map": "node tools/import-map.js",
 		"prepare": "node tools/setup-hooks.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
@@ -17,8 +16,7 @@
 		"@biomejs/biome": "^2.3.13",
 		"@vitest/coverage-v8": "^4.0.18",
 		"knip": "^5.83.0",
-		"vitest": "^4.0.18",
-		"xlsx": "^0.18.5"
+		"vitest": "^4.0.18"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

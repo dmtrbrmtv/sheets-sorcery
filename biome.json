@@ -31,41 +31,8 @@
 			}
 		}
 	},
-	"javascript": {
-		"globals": [
-			"SpreadsheetApp",
-			"Session",
-			"CFG",
-			"Logger",
-			"PropertiesService",
-			"Utilities",
-			"HtmlService",
-			"UrlFetchApp",
-			"Browser",
-			"getSheet_",
-			"ensureSheet_",
-			"splitIconAndName_",
-			"readPlayers_",
-			"getActivePlayers_",
-			"calcPlayerPos_",
-			"syncToolFlags_",
-			"ensureEquipHeader_",
-			"playerHasItem_",
-			"addItemToPlayer_",
-			"calcBaseEmpty_",
-			"getMapData_",
-			"getBaseData_",
-			"readTimers_",
-			"writeTimer_",
-			"removeExpiredTimers_",
-			"logAction_",
-			"getEntities_",
-			"setEntities_",
-			"getZombies_",
-			"setZombies_"
-		]
-	},
+	"javascript": {},
 	"files": {
-		"includes": ["**/*.js", "**/*.json", "!**/docs/world_base.js"]
+		"includes": ["**/*.js", "**/*.json"]
 	}
 }

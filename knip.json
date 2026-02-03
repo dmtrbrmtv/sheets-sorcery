@@ -2,7 +2,7 @@
 	"$schema": "https://unpkg.com/knip@latest/schema.json",
 	"entry": ["docs/index.html", "docs/game.js", "tools/*.js"],
 	"project": ["docs/**/*.js", "tools/**/*.js"],
-	"ignore": ["docs/world_base.js"],
+	"ignore": [],
 	"ignoreDependencies": [],
 	"ignoreExportsUsedInFile": true
 }

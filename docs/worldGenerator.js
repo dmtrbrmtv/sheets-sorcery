@@ -274,7 +274,7 @@ export function generateWorld(seed = Date.now()) {
 	return tileGrid;
 }
 
-/** Single-tile lookup for procedural infinite world (y > GRID_H) */
+/** Single-tile lookup for procedural infinite world extension */
 export function proceduralTileFromSeed(x, y, seed) {
 	const heightOffset = hash(seed, 0, 0) % 1000;
 	const moistureOffset = hash(seed, 1, 0) % 1000;

@@ -1,5 +1,5 @@
 // ===== Sheets & Sorcery: Procedural World Generation =====
-// Infinite world below the base map (y > GRID_H). Uses same blob generator as base map.
+// Infinite world extension beyond the base grid. Uses same blob generator as base world.
 
 import { proceduralTileFromSeed } from "./worldGenerator.js";
 

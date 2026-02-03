@@ -3,7 +3,7 @@
 import { CFG, GRID_H, GRID_W } from "./config.js";
 import { proceduralTile } from "./procedural.js";
 import { baseTile, randInt } from "./utils.js";
-import { WORLD } from "./world_base.js";
+import { generateWorld } from "./worldGenerator.js";
 
 function logHistory(state, who, what, opts = {}) {
 	state.history.unshift({
@@ -21,7 +21,7 @@ function logHistory(state, who, what, opts = {}) {
 
 export function createInitialState() {
 	const worldSeed = Math.floor(Math.random() * 1000000);
-	const world = WORLD.map((row) => [...row.map((c) => baseTile(c))]);
+	const world = generateWorld(worldSeed);
 	const pos = findFirstWalkable(world);
 
 	const playerCell = new Set([`${pos.x},${pos.y}`]);
