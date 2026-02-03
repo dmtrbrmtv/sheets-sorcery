@@ -1,5 +1,9 @@
 # Sheets & Sorcery
 
+<p align="center">
+  <img src="poster.png" alt="Sheets & Sorcery Movie Poster" width="600">
+</p>
+
 Tactical RPG with resource gathering, crafting, and combat. Playable in browser or Google Sheets.
 
 ## Quick Start (Browser)
