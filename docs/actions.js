@@ -272,7 +272,7 @@ export function doTalk(state) {
 		return false;
 	}
 	const spec = CFG.VILLAGERS?.[villager.emoji];
-	const dialog = spec?.dialog || villager.dialog || "...";
+	const dialog = spec?.dialog || villager.dialog || "…";
 	addHistory(state, villager.emoji, "", `${villager.name}: «${dialog}»`, "", "");
 	const isQuestGiver = villager.role === "quest" || villager.emoji === "🧙‍♂️";
 	if (isQuestGiver && CFG.QUESTS) {

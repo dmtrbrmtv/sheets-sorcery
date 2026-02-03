@@ -317,6 +317,27 @@ gridEl.addEventListener("click", (e) => {
 
 document.addEventListener("keydown", (e) => {
 	const key = e.key.toLowerCase();
+	if (homeMode) {
+		if (key === "enter" || key === " " || key === "space") {
+			e.preventDefault();
+			const home = state.home;
+			if (home?.playerX != null && home?.playerY != null) {
+				selectedHomeX = home.playerX;
+				selectedHomeY = home.playerY;
+				refreshAll();
+			}
+			return;
+		}
+		if (key === "escape") {
+			e.preventDefault();
+			if (selectedHomeX != null || selectedHomeY != null) {
+				selectedHomeX = null;
+				selectedHomeY = null;
+				refreshAll();
+			}
+			return;
+		}
+	}
 	let dir = null;
 	if (key === "arrowup" || key === "w") dir = "N";
 	if (key === "arrowdown" || key === "s") dir = "S";
@@ -349,8 +370,14 @@ if (resetBtn) {
 function syncHistoryTabs() {
 	const globalEl = document.getElementById("history-tab-global");
 	const playerEl = document.getElementById("history-tab-player");
-	if (globalEl) globalEl.classList.toggle("active", historyShowGlobal);
-	if (playerEl) playerEl.classList.toggle("active", historyShowPlayer);
+	if (globalEl) {
+		globalEl.classList.toggle("active", historyShowGlobal);
+		globalEl.setAttribute("aria-pressed", String(historyShowGlobal));
+	}
+	if (playerEl) {
+		playerEl.classList.toggle("active", historyShowPlayer);
+		playerEl.setAttribute("aria-pressed", String(historyShowPlayer));
+	}
 }
 const historyTabGlobalEl = document.getElementById("history-tab-global");
 const historyTabPlayerEl = document.getElementById("history-tab-player");
@@ -850,10 +877,10 @@ function renderCraft() {
 				.map((spec) => {
 					const active = spec.index === selectedCraftIndex ? " active" : "";
 					const canClass = spec.canCraft ? " can-craft" : "";
-					return `<div data-craft-index="${spec.index}" class="craft-list-item${active}${canClass}" tabindex="0">
+					return `<button type="button" data-craft-index="${spec.index}" class="craft-list-item${active}${canClass}" aria-pressed="${active ? "true" : "false"}">
           <span class="craft-list-icon">${spec.item}</span>
           <span class="craft-list-name">${spec.name}</span>
-        </div>`;
+        </button>`;
 				})
 				.join("")
 		: "";

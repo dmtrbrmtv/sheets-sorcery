@@ -136,7 +136,7 @@ function spawnVillagers(world, occupied = new Set()) {
 				emoji,
 				name: spec.name || emoji,
 				role: spec.role || "resident",
-				dialog: spec.dialog || "...",
+				dialog: spec.dialog || "…",
 			});
 			occupied.add(key);
 			break;
