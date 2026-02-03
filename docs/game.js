@@ -50,8 +50,8 @@ import {
 	getPlayerStats,
 	RULES_TEXT,
 } from "./ui.js";
-import { getBiomeFromTile, getBiomeLabel } from "./worldGenerator.js";
 import { AudioManager } from "./web/audio/audioManager.js";
+import { getBiomeFromTile, getBiomeLabel } from "./worldGenerator.js";
 
 const sessionInfo = ensureSessionId();
 const STORAGE_KEY = makeStorageKey(sessionInfo.sessionId);
