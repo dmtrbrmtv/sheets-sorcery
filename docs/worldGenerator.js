@@ -178,7 +178,7 @@ const VILLAGE_OVERRIDES = [
 	[3, 8, "⬜️"],
 ];
 
-/** Generate full 26×32 world with blob-based terrain */
+/** Generate full 26×32 world with blob-based terrain @public */
 export function generateWorld(seed = Date.now()) {
 	const w = GRID_W;
 	const h = GRID_H;
