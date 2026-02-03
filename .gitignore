@@ -1,2 +1,25 @@
 .DS_Store
 node_modules/
+
+# Local settings
+settings.local.json
+*.local.json
+
+# Claude Code
+.claude/
+
+# Editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
