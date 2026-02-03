@@ -3,9 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <title>Sheets & Sorcery</title>
+  <meta
+    name="description"
+    content="A spreadsheet-inspired tactical RPG: gather resources, craft gear, and battle across a living map. Play now in your browser."
+  />
+  <link rel="canonical" href="https://dmtrbrmtv.github.io/sheets-sorcery/" />
+  <meta property="og:title" content="Sheets & Sorcery — Tactical RPG in your browser" />
+  <meta
+    property="og:description"
+    content="A spreadsheet-inspired tactical RPG: gather resources, craft gear, and battle across a living map. Play now in your browser."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dmtrbrmtv.github.io/sheets-sorcery/" />
+  <meta property="og:site_name" content="Sheets & Sorcery" />
+  <meta property="og:image" content="https://dmtrbrmtv.github.io/sheets-sorcery/poster.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1536" />
+  <meta property="og:image:height" content="1024" />
+  <meta property="og:image:alt" content="Sheets & Sorcery poster" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sheets & Sorcery — Tactical RPG in your browser" />
+  <meta
+    name="twitter:description"
+    content="A spreadsheet-inspired tactical RPG: gather resources, craft gear, and battle across a living map. Play now in your browser."
+  />
+  <meta name="twitter:image" content="https://dmtrbrmtv.github.io/sheets-sorcery/poster.png" />
+  <meta name="twitter:image:alt" content="Sheets & Sorcery poster" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Перейти к игре</a>
+  <h1 class="sr-only">Sheets & Sorcery</h1>
 
   <div class="layout">
     <!-- LEFT: History + Rules (INFO ONLY) -->
@@ -14,11 +48,11 @@
         <div class="history-header">
           <h3>📜 История</h3>
           <div class="history-tabs">
-            <button type="button" id="history-tab-global" class="history-tab active" title="Вся история (вкл/выкл)">🗺️</button>
-            <button type="button" id="history-tab-player" class="history-tab" title="Мои действия и диалоги (вкл/выкл)">👤</button>
+            <button type="button" id="history-tab-global" class="history-tab active" title="Вся история (вкл/выкл)" aria-label="Вся история" aria-pressed="true">🗺️</button>
+            <button type="button" id="history-tab-player" class="history-tab" title="Мои действия и диалоги (вкл/выкл)" aria-label="Мои действия и диалоги" aria-pressed="false">👤</button>
           </div>
         </div>
-        <div id="history" class="history"></div>
+        <div id="history" class="history" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
       </div>
       <div class="panel">
         <h3>📋 Правила</h3>
@@ -28,7 +62,7 @@
     </aside>
 
     <!-- CENTER: Map (always centered, camera on player) -->
-    <main class="col-center">
+    <main id="main" class="col-center">
       <div class="map-wrapper">
         <div class="map-container">
           <div id="map-bg" class="map-bg"></div>
@@ -58,7 +92,7 @@
             <div class="combat-vs">против</div>
             <div id="combat-enemy" class="combat-fighter"></div>
           </div>
-          <div id="combat-log" class="combat-log"></div>
+          <div id="combat-log" class="combat-log" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false"></div>
           <div class="combat-buttons">
             <button data-combat="attack">⚔️ Атака</button>
             <button data-combat="defend">🛡️ Защита</button>
