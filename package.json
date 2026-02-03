@@ -8,6 +8,7 @@
 		"lint:fix": "biome check --write .",
 		"knip": "knip",
 		"import-map": "node tools/import-map.js",
+		"prepare": "node tools/setup-hooks.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage"
