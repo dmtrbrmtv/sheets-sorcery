@@ -9,6 +9,12 @@
   --accent: #6b7c5a;
   --accent-strong: #4f6141;
   --shadow: rgba(0,0,0,0.08);
+  --board-perspective: 900px;
+  --board-tilt-x: 4deg;
+  --board-tilt-y: 0deg;
+  --board-thickness: 8px;
+  --board-edge: #c7b39b;
+  --board-shadow: rgba(0,0,0,0.22);
 }
 
 * {
@@ -122,7 +128,12 @@ button {
   position: relative;
   overflow: hidden;
   border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  transform: perspective(var(--board-perspective)) rotateX(var(--board-tilt-x)) rotateY(var(--board-tilt-y));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  box-shadow:
+    var(--board-thickness) var(--board-thickness) 0 var(--board-edge),
+    calc(var(--board-thickness) + 2px) calc(var(--board-thickness) + 4px) 18px var(--board-shadow);
 }
 
 .map-wrapper::after {
