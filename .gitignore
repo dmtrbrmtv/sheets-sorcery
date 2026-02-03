@@ -19,6 +19,9 @@ settings.local.json
 npm-debug.log*
 pnpm-debug.log*
 
+# Test coverage
+coverage/
+
 # Environment
 .env
 .env.local
