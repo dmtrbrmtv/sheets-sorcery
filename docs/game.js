@@ -50,6 +50,11 @@ import {
 	RULES_TEXT,
 } from "./ui.js";
 import { getBiomeFromTile, getBiomeLabel } from "./worldGenerator.js";
+import { ensureSessionId, LEGACY_KEY, makeStorageKey } from "./session.js";
+
+const sessionInfo = ensureSessionId();
+const STORAGE_KEY = makeStorageKey(sessionInfo.sessionId);
+const HAS_EXPLICIT_SESSION = sessionInfo.explicit;
 
 const state = loadState();
 let homeMode = false;
@@ -62,11 +67,27 @@ let historyShowPlayer = false;
 
 function loadState() {
 	try {
-		const raw = localStorage.getItem("sheets-sorcery");
-		if (!raw) return createInitialState();
+		let raw = localStorage.getItem(STORAGE_KEY);
+		if (!raw && !HAS_EXPLICIT_SESSION) {
+			const legacy = localStorage.getItem(LEGACY_KEY);
+			if (legacy) {
+				localStorage.setItem(STORAGE_KEY, legacy);
+				localStorage.removeItem(LEGACY_KEY);
+				raw = legacy;
+			}
+		}
+		if (!raw) {
+			const fresh = createInitialState();
+			saveState(fresh);
+			return fresh;
+		}
 		const parsed = JSON.parse(raw);
 		parsed.revealed = new Set(parsed.revealed || []);
-		if (!parsed.world || !parsed.player) return createInitialState();
+		if (!parsed.world || !parsed.player) {
+			const fresh = createInitialState();
+			saveState(fresh);
+			return fresh;
+		}
 		if (!parsed.npcs) parsed.npcs = [];
 		if (!parsed.villagers) parsed.villagers = [];
 		if (!parsed.hunters) {
@@ -124,13 +145,16 @@ function loadState() {
 		}
 		return parsed;
 	} catch {
-		return createInitialState();
+		const fresh = createInitialState();
+		saveState(fresh);
+		return fresh;
 	}
 }
 
-function saveState() {
-	const toSave = { ...state, revealed: Array.from(state.revealed), combat: null };
-	localStorage.setItem("sheets-sorcery", JSON.stringify(toSave));
+function saveState(nextState = state) {
+	const revealed = Array.from(nextState.revealed || []);
+	const toSave = { ...nextState, revealed, combat: null };
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 }
 
 function isOnHouseTile() {
@@ -316,7 +340,7 @@ document.addEventListener("keydown", (e) => {
 if (resetBtn) {
 	resetBtn.addEventListener("click", () => {
 		if (confirm("Сбросить игру?")) {
-			localStorage.removeItem("sheets-sorcery");
+			localStorage.removeItem(STORAGE_KEY);
 			location.reload();
 		}
 	});
