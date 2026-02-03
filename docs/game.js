@@ -39,6 +39,7 @@ import {
 	plantFruit,
 	plantVeg,
 } from "./home.js";
+import { ensureSessionId, LEGACY_KEY, makeStorageKey } from "./session.js";
 import { getTerrainBg } from "./terrain.js";
 import {
 	getActiveQuests,
@@ -50,7 +51,6 @@ import {
 	RULES_TEXT,
 } from "./ui.js";
 import { getBiomeFromTile, getBiomeLabel } from "./worldGenerator.js";
-import { ensureSessionId, LEGACY_KEY, makeStorageKey } from "./session.js";
 
 const sessionInfo = ensureSessionId();
 const STORAGE_KEY = makeStorageKey(sessionInfo.sessionId);
