@@ -8,101 +8,102 @@
  * Emoji detection tries to catch multi-char emoji (with ZWJ, skin tone, etc).
  */
 function splitIconAndName_(raw) {
-  if (!raw) return { icon: "", name: "" };
-  let s = String(raw).trim();
-  // Regex handles emoji with skin tone modifiers (🏻🏼🏽🏾🏿) and ZWJ sequences
-  // Pattern: base emoji + optional skin tone + (ZWJ + emoji + optional skin tone)* + optional variation selector
-  const emojiRegex = /^(\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?)*)\s*/u;
-  const match = s.match(emojiRegex);
-  if (match && match[1]) {
-    const icon = match[1];
-    const name = s.slice(match[0].length).trim();
-    return { icon, name };
-  }
-  return { icon: "", name: s };
+	if (!raw) return { icon: "", name: "" };
+	const s = String(raw).trim();
+	// Regex handles emoji with skin tone modifiers (🏻🏼🏽🏾🏿) and ZWJ sequences
+	// Pattern: base emoji + optional skin tone + (ZWJ + emoji + optional skin tone)* + optional variation selector
+	const emojiRegex =
+		/^(\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:\p{Emoji_Modifier})?(?:\uFE0F)?)*)\s*/u;
+	const match = s.match(emojiRegex);
+	if (match?.[1]) {
+		const icon = match[1];
+		const name = s.slice(match[0].length).trim();
+		return { icon, name };
+	}
+	return { icon: "", name: s };
 }
 
 const CFG = {
-  SHEETS: {
-    map: "🗺 Карта",
-    base: "🗺 База (истина)",
-    players: "🧙🏼‍♂️Персонажи",
-    history: "📜История",
-    timers: "⏱Таймеры",
-    equip: "🧳Эквип",
-    craft: "🧾Крафт",
-  },
+	SHEETS: {
+		map: "🗺 Карта",
+		base: "🗺 База (истина)",
+		players: "🧙🏼‍♂️Персонажи",
+		history: "📜История",
+		timers: "⏱Таймеры",
+		equip: "🧳Эквип",
+		craft: "🧾Крафт",
+	},
 
-  GRID: {
-    topLeftA1: "C3",
-    bottomRightA1: "AB34",
-    hudRow: 41,
-    hudStartColA1: "C",
-    hudEndColA1: "AB",
-  },
+	GRID: {
+		topLeftA1: "C3",
+		bottomRightA1: "AB34",
+		hudRow: 41,
+		hudStartColA1: "C",
+		hudEndColA1: "AB",
+	},
 
-  FOG: {
-    radius: 3,
-    fogChar: "🌫️",
-    baseEmpty: "⬜️",
-  },
+	FOG: {
+		radius: 3,
+		fogChar: "🌫️",
+		baseEmpty: "⬜️",
+	},
 
-  BLOCKED: new Set(["🌊", "🗿", "⛰️", "🌋"]),
+	BLOCKED: new Set(["🌊", "🗿", "⛰️", "🌋"]),
 
-  RESOURCES: {
-    HUNT_TILES: new Set(["🦌", "🐗", "🐇"]),
-    // Wood sequence: 🌳/🌲 → 🌿 → 🌱 → (timer) → 🌳
-    WOOD_TILES: new Set(["🌳", "🌲", "🌿", "🌱"]),
-    WOOD_DEPLETED: "🌱",
-    WOOD_REGEN_TO: "🌳",
-    // Stone sequence: 🗻 → 🪨 → 🧱 → 🕳️ → (timer) → 🗻
-    STONE_TILES: new Set(["🗻", "🪨", "🧱", "🕳️"]),
-    STONE_DEPLETED: "🕳️",
-    STONE_REGEN_TO: "🗻",
-  },
+	RESOURCES: {
+		HUNT_TILES: new Set(["🦌", "🐗", "🐇"]),
+		// Wood sequence: 🌳/🌲 → 🌿 → 🌱 → (timer) → 🌳
+		WOOD_TILES: new Set(["🌳", "🌲", "🌿", "🌱"]),
+		WOOD_DEPLETED: "🌱",
+		WOOD_REGEN_TO: "🌳",
+		// Stone sequence: 🗻 → 🪨 → 🧱 → 🕳️ → (timer) → 🗻
+		STONE_TILES: new Set(["🗻", "🪨", "🧱", "🕳️"]),
+		STONE_DEPLETED: "🕳️",
+		STONE_REGEN_TO: "🗻",
+	},
 
-  MOVES_PER_DAY: 6,
+	MOVES_PER_DAY: 6,
 
-  REGEN_DAYS: {
-    wood: 3,
-    stone: 3,
-    hunt: 2,
-  },
+	REGEN_DAYS: {
+		wood: 3,
+		stone: 3,
+		hunt: 2,
+	},
 
-  ZOMBIE: {
-    aliveTile: "🧟",
-    graveTile: "🪦",  // Headstone tile when zombie is killed
-    respawnDays: 5,   // Days until zombie respawns
+	ZOMBIE: {
+		aliveTile: "🧟",
+		graveTile: "🪦", // Headstone tile when zombie is killed
+		respawnDays: 5, // Days until zombie respawns
 
-    atk: 2,
-    hp: 6,
-    diceSides: 6,
+		atk: 2,
+		hp: 6,
+		diceSides: 6,
 
-    goldMin: 1,
-    goldMax: 3,
-    itemChance: 0.20,
-    lootItems: ["💉", "🧪", "🗡️", "🛡️"],
-  },
+		goldMin: 1,
+		goldMax: 3,
+		itemChance: 0.2,
+		lootItems: ["💉", "🧪", "🗡️", "🛡️"],
+	},
 
-  RESPAWN: {
-    hospitalA1: "D7",
-  },
+	RESPAWN: {
+		hospitalA1: "D7",
+	},
 
-  BUILD: {
-    HOUSE_COST: { wood: 5, stone: 3, gold: 2 },
-    HOUSE_ALLOWED_TILES: new Set(["⬜️", "🏚️"]),
-    HOUSE_TILE: "🏠",
-  },
+	BUILD: {
+		HOUSE_COST: { wood: 5, stone: 3, gold: 2 },
+		HOUSE_ALLOWED_TILES: new Set(["⬜️", "🏚️"]),
+		HOUSE_TILE: "🏠",
+	},
 
-  ANIMALS: {
-    small: { emoji: "🐇", tiles: new Set(["⬜️", "🌿"]) },
-    big: { emoji: "🦌", tiles: new Set(["🌳", "🌲", "🌿"]) },
-    maxCount: 5,
-  },
+	ANIMALS: {
+		small: { emoji: "🐇", tiles: new Set(["⬜️", "🌿"]) },
+		big: { emoji: "🦌", tiles: new Set(["🌳", "🌲", "🌿"]) },
+		maxCount: 5,
+	},
 
-  NPCS: {
-    "🧝🏿": { name: "Dark elf", tiles: new Set(["🌳", "🌲", "🌿"]), atk: 2, hp: 4, movesPerDay: 1 },
-    "🧑🏾‍🌾": { name: "Infected farmer", tiles: new Set(["⬜️"]), atk: 1, hp: 2, movesPerDay: 1, spawnChance: 0.1 },
-    "🧙🏾‍♀️": { name: "Mad mage", tiles: new Set(["🗿", "⛰️", "🌋"]), atk: 3, hp: 5, movesPerDay: 1 },
-  },
+	NPCS: {
+		"🧝🏿": { name: "Dark elf", tiles: new Set(["🌳", "🌲", "🌿"]), atk: 2, hp: 4, movesPerDay: 1 },
+		"🧑🏾‍🌾": { name: "Infected farmer", tiles: new Set(["⬜️"]), atk: 1, hp: 2, movesPerDay: 1, spawnChance: 0.1 },
+		"🧙🏾‍♀️": { name: "Mad mage", tiles: new Set(["🗿", "⛰️", "🌋"]), atk: 3, hp: 5, movesPerDay: 1 },
+	},
 };

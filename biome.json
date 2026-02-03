@@ -1,0 +1,71 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 120
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedImports": "error"
+			},
+			"style": {
+				"useConst": "error"
+			},
+			"complexity": {
+				"useOptionalChain": "warn"
+			},
+			"suspicious": {
+				"useIterableCallbackReturn": "off",
+				"noAssignInExpressions": "off"
+			}
+		}
+	},
+	"javascript": {
+		"globals": [
+			"SpreadsheetApp",
+			"Session",
+			"CFG",
+			"Logger",
+			"PropertiesService",
+			"Utilities",
+			"HtmlService",
+			"UrlFetchApp",
+			"Browser",
+			"getSheet_",
+			"ensureSheet_",
+			"splitIconAndName_",
+			"readPlayers_",
+			"getActivePlayers_",
+			"calcPlayerPos_",
+			"syncToolFlags_",
+			"ensureEquipHeader_",
+			"playerHasItem_",
+			"addItemToPlayer_",
+			"calcBaseEmpty_",
+			"getMapData_",
+			"getBaseData_",
+			"readTimers_",
+			"writeTimer_",
+			"removeExpiredTimers_",
+			"logAction_",
+			"getEntities_",
+			"setEntities_",
+			"getZombies_",
+			"setZombies_"
+		]
+	},
+	"files": {
+		"includes": ["**/*.js", "**/*.json", "!**/docs/world_base.js"]
+	}
+}
