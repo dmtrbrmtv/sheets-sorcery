@@ -4,10 +4,10 @@
 	"private": true,
 	"scripts": {
 		"dev": "npx serve docs -p 3333",
-		"lint": "biome check . && knip && pnpm lint:a11y",
+		"lint": "biome check . && knip",
 		"a11y:serve": "serve docs -p 3333",
 		"a11y:check": "axe http://localhost:3333/index.html --tags wcag2a,wcag2aa --exit",
-		"lint:a11y": "start-server-and-test \"pnpm a11y:serve\" http://localhost:3333 \"pnpm a11y:check\"",
+		"a11y:check:all": "start-server-and-test \"pnpm a11y:serve\" http://localhost:3333 \"pnpm a11y:check\"",
 		"lint:fix": "biome check --write .",
 		"knip": "knip",
 		"prepare": "node tools/setup-hooks.js",

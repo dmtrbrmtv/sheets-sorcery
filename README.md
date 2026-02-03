@@ -19,9 +19,9 @@ pnpm dev
 | Command | Description |
 |---------|-------------|
 | `pnpm dev` | Start local server |
-| `pnpm lint` | Run Biome, knip, and WCAG (Axe) checks |
+| `pnpm lint` | Run Biome and knip checks |
 | `pnpm lint:fix` | Auto-fix lint issues |
-| `pnpm lint:a11y` | Run WCAG checks against `docs/index.html` |
+| `pnpm a11y:check:all` | Run WCAG checks against `docs/index.html` |
 | `pnpm a11y:serve` | Serve `docs/` for accessibility testing |
 | `pnpm a11y:check` | Run Axe WCAG checks against the local server |
 
@@ -36,9 +36,9 @@ pnpm lint
 
 Or run just accessibility checks:
 ```bash
-pnpm lint:a11y
+pnpm a11y:check:all
 ```
 
 Notes:
-- The lint task starts a temporary server on `http://localhost:3333` and runs Axe in headless Chrome.
+- The `a11y:check:all` task starts a temporary server on `http://localhost:3333` and runs Axe in headless Chrome.
 - Automated checks catch only a subset of issues; manual testing is still required.

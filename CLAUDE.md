@@ -17,6 +17,7 @@ pnpm dev                        # Start local server at http://localhost:3333
 # Linting (Biome)
 pnpm lint                       # Check for issues
 pnpm lint:fix                   # Auto-fix issues
+pnpm a11y:check:all             # Run Axe WCAG checks against docs/index.html
 
 ```
 

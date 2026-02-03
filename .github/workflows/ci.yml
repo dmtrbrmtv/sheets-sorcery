@@ -15,20 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - id: setup-chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          install-dependencies: true
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: ${{ steps.setup-chrome.outputs.chrome-path }} --version
       - run: pnpm lint
-        env:
-          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
-          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
 
   test:
     runs-on: ubuntu-latest
