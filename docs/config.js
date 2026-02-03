@@ -3,7 +3,7 @@
 
 export const GRID_W = 26;
 export const GRID_H = 32;
-export const CELL_SIZE_PX = 28;
+export const CELL_SIZE_PX = 42;
 
 /** When true, map shows biome letters (G=grass, F=forest, P=field, M=mountain, W=water, S=shore) */
 export const DEBUG_SHOW_BIOMES = false;

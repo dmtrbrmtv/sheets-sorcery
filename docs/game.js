@@ -178,6 +178,8 @@ function enterHouse() {
 	homeMode = true;
 	selectedHomeX = null;
 	selectedHomeY = null;
+	lastCamera = null;
+	lastPlayerPos = null;
 	saveState();
 	refreshAll();
 }
@@ -186,6 +188,8 @@ function exitHouse() {
 	homeMode = false;
 	selectedHomeX = null;
 	selectedHomeY = null;
+	lastCamera = null;
+	lastPlayerPos = null;
 	saveState();
 	refreshAll();
 }
@@ -243,6 +247,7 @@ function renderDayOverlay() {
 	dayOverlayEl.className = `phase-overlay phase-${t.phase || "day"}`;
 }
 
+const mapWrapperEl = document.querySelector(".map-wrapper");
 const mapContainerEl = document.querySelector(".map-container");
 const mapBgEl = document.getElementById("map-bg");
 const gridEl = document.getElementById("grid");
@@ -261,6 +266,11 @@ const craftDetailsEl = document.getElementById("craft-details");
 const rulesEl = document.getElementById("rules");
 const questsEl = document.getElementById("quests");
 const resetBtn = document.getElementById("reset");
+const VIEW_COLS = Math.min(GRID_W, 19);
+const VIEW_ROWS = Math.min(GRID_H, 19);
+const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let lastPlayerPos = null;
+let lastCamera = null;
 
 if (!gridEl) throw new Error("index.html must contain <div id='grid'></div>");
 
@@ -278,6 +288,60 @@ gridEl.style.gridTemplateColumns = `repeat(${GRID_W}, ${CELL_SIZE_PX}px)`;
 gridEl.style.gridAutoRows = `${CELL_SIZE_PX}px`;
 gridEl.style.gap = "0";
 gridEl.style.padding = "0";
+
+function updateCameraAndFocus({ playerX, playerY, gridCols, gridRows }) {
+	if (!mapContainerEl || !mapWrapperEl) return;
+
+	const viewCols = Math.min(gridCols, VIEW_COLS);
+	const viewRows = Math.min(gridRows, VIEW_ROWS);
+	const viewportW = viewCols * CELL_SIZE_PX;
+	const viewportH = viewRows * CELL_SIZE_PX;
+	const mapW = gridCols * CELL_SIZE_PX;
+	const mapH = gridRows * CELL_SIZE_PX;
+
+	mapWrapperEl.style.width = `${viewportW}px`;
+	mapWrapperEl.style.height = `${viewportH}px`;
+
+	const playerPx = (playerX - 0.5) * CELL_SIZE_PX;
+	const playerPy = (playerY - 0.5) * CELL_SIZE_PX;
+	const targetX = viewportW / 2 - playerPx;
+	const targetY = viewportH / 2 - playerPy;
+
+	const minX = viewportW - mapW;
+	const minY = viewportH - mapH;
+	const clampedX = Math.max(minX, Math.min(0, targetX));
+	const clampedY = Math.max(minY, Math.min(0, targetY));
+
+	const focusX = playerPx + clampedX;
+	const focusY = playerPy + clampedY;
+	mapWrapperEl.style.setProperty("--focus-x", `${focusX}px`);
+	mapWrapperEl.style.setProperty("--focus-y", `${focusY}px`);
+
+	if (reduceMotionQuery.matches || !lastCamera) {
+		mapContainerEl.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
+		lastCamera = { x: clampedX, y: clampedY };
+		return;
+	}
+
+	const lastX = lastCamera.x;
+	const lastY = lastCamera.y;
+	if (lastX !== clampedX || lastY !== clampedY) {
+		const overshootX = clampedX + (clampedX - lastX) * 0.08;
+		const overshootY = clampedY + (clampedY - lastY) * 0.08;
+		mapContainerEl.getAnimations?.().forEach((anim) => anim.cancel());
+		mapContainerEl.animate(
+			[
+				{ transform: `translate(${lastX}px, ${lastY}px)` },
+				{ transform: `translate(${overshootX}px, ${overshootY}px)` },
+				{ transform: `translate(${clampedX}px, ${clampedY}px)` },
+			],
+			{ duration: 160, easing: "cubic-bezier(0.22, 1.0, 0.36, 1)" },
+		);
+	}
+
+	mapContainerEl.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
+	lastCamera = { x: clampedX, y: clampedY };
+}
 
 refreshAll();
 
@@ -408,9 +472,7 @@ function renderMapBg() {
 	const ctx = canvas.getContext("2d");
 	const p = state.player;
 	buildVisibleSet(p).forEach((k) => state.revealed.add(k));
-	const viewMinY = Math.max(1, p.y - 15);
-	const viewMaxY = viewMinY + 31;
-	for (let viewY = viewMinY; viewY <= viewMaxY; viewY++) {
+	for (let viewY = 1; viewY <= GRID_H; viewY++) {
 		for (let viewX = 1; viewX <= GRID_W; viewX++) {
 			const key = `${viewX},${viewY}`;
 			const isRevealed = state.revealed.has(key);
@@ -418,7 +480,7 @@ function renderMapBg() {
 			const color = isRevealed ? getTerrainBg(baseTile) : "#6a6a62";
 			ctx.fillStyle = color;
 			const canvasX = (viewX - 1) * CELL_SIZE_PX;
-			const canvasY = (viewY - viewMinY) * CELL_SIZE_PX;
+			const canvasY = (viewY - 1) * CELL_SIZE_PX;
 			ctx.fillRect(canvasX, canvasY, CELL_SIZE_PX, CELL_SIZE_PX);
 		}
 	}
@@ -472,6 +534,8 @@ function renderHomeGrid() {
 		mapContainerEl.style.width = `${HOME_W * CELL_SIZE_PX}px`;
 		mapContainerEl.style.height = `${HOME_H * CELL_SIZE_PX}px`;
 	}
+	updateCameraAndFocus({ playerX: home.playerX, playerY: home.playerY, gridCols: HOME_W, gridRows: HOME_H });
+	lastPlayerPos = { mode: "home", x: home.playerX, y: home.playerY };
 }
 
 function render() {
@@ -505,9 +569,17 @@ function render() {
 		if (state.revealed.has(key)) entityCells.set(key, { emoji: h.emoji, hostile: false });
 	});
 
-	const viewMinY = Math.max(1, p.y - 15);
-	const viewMaxY = viewMinY + 31;
-	for (let viewY = viewMinY; viewY <= viewMaxY; viewY++) {
+	const lastPos = lastPlayerPos?.mode === "world" ? lastPlayerPos : null;
+	let stepDx = 0;
+	let stepDy = 0;
+	let shouldSpring = false;
+	if (lastPos) {
+		stepDx = p.x - lastPos.x;
+		stepDy = p.y - lastPos.y;
+		shouldSpring = Math.abs(stepDx) + Math.abs(stepDy) === 1;
+	}
+
+	for (let viewY = 1; viewY <= GRID_H; viewY++) {
 		for (let viewX = 1; viewX <= GRID_W; viewX++) {
 			const key = `${viewX},${viewY}`;
 			const isRevealed = state.revealed.has(key);
@@ -547,6 +619,11 @@ function render() {
 			if (isPlayerHere) {
 				entityLayer.textContent = p.icon;
 				entityLayer.classList.add("player");
+				if (shouldSpring) {
+					entityLayer.classList.add("step-spring");
+					entityLayer.style.setProperty("--step-from-x", `${-stepDx * CELL_SIZE_PX}px`);
+					entityLayer.style.setProperty("--step-from-y", `${-stepDy * CELL_SIZE_PX}px`);
+				}
 				if (entityData) {
 					const combatInfo = getCombatEnemyInfo(state);
 					const villager = (state.villagers || []).find((v) => v.x === viewX && v.y === viewY);
@@ -566,6 +643,9 @@ function render() {
 			gridEl.appendChild(cell);
 		}
 	}
+
+	updateCameraAndFocus({ playerX: p.x, playerY: p.y, gridCols: GRID_W, gridRows: GRID_H });
+	lastPlayerPos = { mode: "world", x: p.x, y: p.y };
 }
 
 function renderPlayerPanel() {
