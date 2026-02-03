@@ -242,9 +242,11 @@ function refreshAll() {
 function renderDayOverlay() {
 	const dayOverlayEl = document.getElementById("day-overlay");
 	if (!dayOverlayEl) return;
-	dayOverlayEl.style.display = homeMode ? "none" : "";
+	dayOverlayEl.style.display = "none";
 	const t = getTimeState(state);
-	dayOverlayEl.className = `phase-overlay phase-${t.phase || "day"}`;
+	if (!gridEl) return;
+	gridEl.classList.remove("phase-day", "phase-dusk", "phase-night", "phase-dawn");
+	if (!homeMode) gridEl.classList.add(`phase-${t.phase || "day"}`);
 }
 
 const mapWrapperEl = document.querySelector(".map-wrapper");

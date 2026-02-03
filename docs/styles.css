@@ -172,6 +172,11 @@ button {
   background: transparent;
 }
 
+#grid.phase-day { --phase-overlay: transparent; }
+#grid.phase-dusk { --phase-overlay: rgba(255, 180, 100, 0.18); }
+#grid.phase-night { --phase-overlay: rgba(20, 30, 80, 0.5); }
+#grid.phase-dawn { --phase-overlay: rgba(220, 180, 220, 0.2); }
+
 /* ---- RIGHT: Player HUD ---- */
 .col-right {
   flex: 0 0 420px;
@@ -227,6 +232,15 @@ button {
   outline-offset: -2px;
 }
 
+.cell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: var(--phase-overlay, transparent);
+}
+
 .cell-terrain {
   position: absolute;
   inset: 0;
@@ -243,7 +257,7 @@ button {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 .cell.player-here .cell-overlay {
@@ -267,8 +281,11 @@ button {
   font-size: 18px;
   line-height: 1;
   pointer-events: none;
-  z-index: 3;
+  z-index: 4;
   filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.4));
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.7),
+    0 0 6px rgba(0, 0, 0, 0.45);
 }
 
 .cell-entity.player {
@@ -283,6 +300,9 @@ button {
 
 .cell-entity.entity-hostile {
   filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.6)) drop-shadow(0 0 4px rgba(180,0,0,0.4));
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.8),
+    0 0 6px rgba(180, 0, 0, 0.5);
 }
 
 @keyframes step-spring {
@@ -300,7 +320,7 @@ button {
   position: absolute;
   inset: 0;
   background: rgba(70, 68, 65, 0.6);
-  z-index: 4;
+  z-index: 5;
   pointer-events: none;
 }
 
