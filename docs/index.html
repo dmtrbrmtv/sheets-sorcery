@@ -42,20 +42,38 @@
   <h1 class="sr-only">Sheets & Sorcery</h1>
 
   <div class="layout">
-    <!-- LEFT: History + Rules (INFO ONLY) -->
+    <!-- LEFT: Audio + History + Rules -->
     <aside class="col-left">
+      <div class="panel audio-panel">
+        <h3>🔊 Звук</h3>
+        <div id="audio-controls" class="audio-controls">
+          <div class="audio-row">
+            <label>Музыка</label>
+            <input type="range" id="audio-music" min="0" max="100" value="20" title="Громкость музыки">
+          </div>
+          <div class="audio-row">
+            <label>Эффекты</label>
+            <input type="range" id="audio-sfx" min="0" max="100" value="8" title="Громкость эффектов">
+          </div>
+          <div class="audio-row">
+            <button type="button" id="audio-mute" title="Выкл/вкл звук">🔇 Mute</button>
+          </div>
+        </div>
+      </div>
       <div class="panel">
         <div class="history-header">
           <h3>📜 История</h3>
           <div class="history-tabs">
-            <button type="button" id="history-tab-global" class="history-tab active" title="Вся история (вкл/выкл)" aria-label="Вся история" aria-pressed="true">🗺️</button>
-            <button type="button" id="history-tab-player" class="history-tab" title="Мои действия и диалоги (вкл/выкл)" aria-label="Мои действия и диалоги" aria-pressed="false">👤</button>
+            <button type="button" id="history-tab-global" class="history-tab active" title="События мира (вкл/выкл)" aria-label="События мира" aria-pressed="true">🗺️</button>
+            <button type="button" id="history-tab-player" class="history-tab active" title="Мои действия и диалоги (вкл/выкл)" aria-label="Мои действия и диалоги" aria-pressed="true">👤</button>
           </div>
         </div>
         <div id="history" class="history" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false" tabindex="0"></div>
       </div>
-      <div class="panel">
-        <h3>📋 Правила</h3>
+      <div class="panel rules-panel" id="rules-panel">
+        <h3 class="rules-toggle" id="rules-toggle" tabindex="0" role="button" aria-expanded="true" aria-controls="rules">
+          <span class="rules-toggle-icon">▼</span> 📋 Правила
+        </h3>
         <div id="rules" class="rules"></div>
       </div>
       <button id="reset" type="button" class="reset-btn">🔄 Сброс</button>

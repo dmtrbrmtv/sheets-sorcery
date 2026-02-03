@@ -111,6 +111,49 @@ button {
   letter-spacing: 0.02em;
 }
 
+.audio-panel .audio-controls {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.audio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.audio-row label {
+  flex: 0 0 70px;
+  color: var(--ink-muted);
+}
+
+.audio-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.audio-row button {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.audio-row button:hover {
+  background: #f5f2ed;
+}
+
+.audio-row button.muted {
+  background: rgba(180, 0, 0, 0.1);
+  border-color: #a06060;
+}
+
 /* ---- CENTER: Map (always centered) ---- */
 .col-center {
   flex: 1;
@@ -724,7 +767,7 @@ button {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--panel-border);
 }
-.history-header h3 {
+.col-left .panel .history-header h3 {
   margin: 0;
   padding: 0;
   border: none;
@@ -794,7 +837,28 @@ button {
 .quest-item:last-child { border-bottom: none; }
 .quest-item small { font-size: 13px; color: var(--ink-muted); }
 
-/* ---- Rules ---- */
+/* ---- Rules (collapsible) ---- */
+.rules-panel .rules-toggle {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rules-panel .rules-toggle:hover {
+  color: var(--accent-strong);
+}
+.rules-toggle-icon {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+.rules-panel.collapsed .rules-toggle-icon {
+  transform: rotate(-90deg);
+}
+.rules-panel.collapsed .rules {
+  display: none;
+}
 .rules-text {
   font-size: 13px;
   margin: 0;

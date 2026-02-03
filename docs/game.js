@@ -51,6 +51,7 @@ import {
 	RULES_TEXT,
 } from "./ui.js";
 import { getBiomeFromTile, getBiomeLabel } from "./worldGenerator.js";
+import { AudioManager } from "./web/audio/audioManager.js";
 
 const sessionInfo = ensureSessionId();
 const STORAGE_KEY = makeStorageKey(sessionInfo.sessionId);
@@ -63,7 +64,7 @@ let selectedHomeY = null;
 let selectedCraftCategory = null;
 let selectedCraftIndex = null;
 let historyShowGlobal = true;
-let historyShowPlayer = false;
+let historyShowPlayer = true;
 
 function loadState() {
 	try {
@@ -199,11 +200,19 @@ function exitHouse() {
  *  2. Advance time second (unconditionally)
  *  3. Render third (unconditionally) */
 function performTurn_(doActionFn) {
+	AudioManager.init();
+	state._playerDiedThisTurn = false;
+
 	const day = state.dayNumber ?? state.day ?? 1;
 	const stepIndex = state.dayStep ?? 0;
 	console.log("TURN start", day, stepIndex);
 
 	doActionFn();
+	if (state._playerDiedThisTurn) {
+		try {
+			AudioManager.playPlayerDeath();
+		} catch (_) {}
+	}
 	console.log("TURN after action", day, stepIndex);
 
 	advanceTurn(state);
@@ -247,6 +256,9 @@ function renderDayOverlay() {
 	if (!gridEl) return;
 	gridEl.classList.remove("phase-day", "phase-dusk", "phase-night", "phase-dawn");
 	if (!homeMode) gridEl.classList.add(`phase-${t.phase || "day"}`);
+	try {
+		AudioManager.playMusic(t.phase);
+	} catch (_) {}
 }
 
 const mapWrapperEl = document.querySelector(".map-wrapper");
@@ -359,7 +371,16 @@ gridEl.addEventListener("click", (e) => {
 			const dy = Math.sign(cy - home.playerY);
 			if (dx !== 0 || dy !== 0) {
 				const dir = dy < 0 ? "N" : dy > 0 ? "S" : dx > 0 ? "E" : "W";
-				performTurn_(() => moveInHome(state, dir));
+				performTurn_(() => {
+					const px = state.home?.playerX;
+					const py = state.home?.playerY;
+					moveInHome(state, dir);
+					if (state.home && (state.home.playerX !== px || state.home.playerY !== py)) {
+						try {
+							AudioManager.playStep(null);
+						} catch (_) {}
+					}
+				});
 				return;
 			}
 		}
@@ -376,8 +397,18 @@ gridEl.addEventListener("click", (e) => {
 	if (dx === 0 && dy === 0) return;
 	const dir = dy < 0 ? "N" : dy > 0 ? "S" : dx > 0 ? "E" : "W";
 	performTurn_(() => {
-		if (move(state, dir)) moveEntitiesOnAction(state);
-		buildVisibleSet(state.player).forEach((k) => state.revealed.add(k));
+		const px = state.player.x;
+		const py = state.player.y;
+		if (move(state, dir)) {
+			moveEntitiesOnAction(state);
+			buildVisibleSet(state.player).forEach((k) => state.revealed.add(k));
+			if (state.player.x !== px || state.player.y !== py) {
+				const tile = getTileAt(state.world, state.player.x, state.player.y, state);
+				try {
+					AudioManager.playStep(tile);
+				} catch (_) {}
+			}
+		}
 	});
 });
 
@@ -412,13 +443,32 @@ document.addEventListener("keydown", (e) => {
 	if (dir) {
 		e.preventDefault();
 		if (homeMode) {
-			performTurn_(() => moveInHome(state, dir));
+			performTurn_(() => {
+				const px = state.home?.playerX;
+				const py = state.home?.playerY;
+				moveInHome(state, dir);
+				if (state.home && (state.home.playerX !== px || state.home.playerY !== py)) {
+					try {
+						AudioManager.playStep(null);
+					} catch (_) {}
+				}
+			});
 			return;
 		}
 		if (!isInCombat(state)) {
 			performTurn_(() => {
-				if (move(state, dir)) moveEntitiesOnAction(state);
-				buildVisibleSet(state.player).forEach((k) => state.revealed.add(k));
+				const px = state.player.x;
+				const py = state.player.y;
+				if (move(state, dir)) {
+					moveEntitiesOnAction(state);
+					buildVisibleSet(state.player).forEach((k) => state.revealed.add(k));
+					if (state.player.x !== px || state.player.y !== py) {
+						const tile = getTileAt(state.world, state.player.x, state.player.y, state);
+						try {
+							AudioManager.playStep(tile);
+						} catch (_) {}
+					}
+				}
 			});
 		}
 	}
@@ -433,6 +483,42 @@ if (resetBtn) {
 	});
 }
 
+function setupAudioControls() {
+	const musicEl = document.getElementById("audio-music");
+	const sfxEl = document.getElementById("audio-sfx");
+	const muteEl = document.getElementById("audio-mute");
+	if (!musicEl || !sfxEl || !muteEl) return;
+	musicEl.value = Math.round((AudioManager.getMusicVolume() ?? 0.2) * 100);
+	sfxEl.value = Math.round((AudioManager.getSfxVolume() ?? 0.08) * 100);
+	muteEl.textContent = AudioManager.isMuted() ? "🔊 Unmute" : "🔇 Mute";
+	muteEl.classList.toggle("muted", AudioManager.isMuted());
+	musicEl.addEventListener("input", () => {
+		onFirstUserInteraction();
+		AudioManager.setMusicVolume(Number(musicEl.value) / 100);
+	});
+	sfxEl.addEventListener("input", () => {
+		onFirstUserInteraction();
+		AudioManager.setSfxVolume(Number(sfxEl.value) / 100);
+	});
+	muteEl.addEventListener("click", () => {
+		onFirstUserInteraction();
+		const next = !AudioManager.isMuted();
+		AudioManager.mute(next);
+		muteEl.textContent = next ? "🔊 Unmute" : "🔇 Mute";
+		muteEl.classList.toggle("muted", next);
+	});
+}
+
+function onFirstUserInteraction() {
+	AudioManager.init();
+	const t = getTimeState(state);
+	AudioManager.playMusic(t.phase);
+}
+document.addEventListener("click", onFirstUserInteraction, { once: true, capture: true });
+document.addEventListener("keydown", onFirstUserInteraction, { once: true, capture: true });
+document.addEventListener("touchstart", onFirstUserInteraction, { once: true, capture: true });
+setupAudioControls();
+
 function syncHistoryTabs() {
 	const globalEl = document.getElementById("history-tab-global");
 	const playerEl = document.getElementById("history-tab-player");
@@ -445,20 +531,45 @@ function syncHistoryTabs() {
 		playerEl.setAttribute("aria-pressed", String(historyShowPlayer));
 	}
 }
-const historyTabGlobalEl = document.getElementById("history-tab-global");
-const historyTabPlayerEl = document.getElementById("history-tab-player");
-if (historyTabGlobalEl) {
-	historyTabGlobalEl.addEventListener("click", () => {
+document.querySelector(".history-header")?.addEventListener("click", (e) => {
+	const globalBtn = e.target.closest("#history-tab-global");
+	const playerBtn = e.target.closest("#history-tab-player");
+	if (globalBtn) {
+		e.preventDefault();
 		historyShowGlobal = !historyShowGlobal;
 		syncHistoryTabs();
 		renderHistory();
-	});
-}
-if (historyTabPlayerEl) {
-	historyTabPlayerEl.addEventListener("click", () => {
+	}
+	if (playerBtn) {
+		e.preventDefault();
 		historyShowPlayer = !historyShowPlayer;
 		syncHistoryTabs();
 		renderHistory();
+	}
+});
+syncHistoryTabs();
+
+const RULES_COLLAPSED_KEY = "sheets-sorcery-rules-collapsed";
+const rulesPanelEl = document.getElementById("rules-panel");
+const rulesToggleEl = document.getElementById("rules-toggle");
+let rulesCollapsed = localStorage.getItem(RULES_COLLAPSED_KEY) === "1";
+function syncRulesPanel() {
+	if (rulesPanelEl) rulesPanelEl.classList.toggle("collapsed", rulesCollapsed);
+	if (rulesToggleEl) rulesToggleEl.setAttribute("aria-expanded", String(!rulesCollapsed));
+}
+function toggleRules() {
+	rulesCollapsed = !rulesCollapsed;
+	localStorage.setItem(RULES_COLLAPSED_KEY, rulesCollapsed ? "1" : "0");
+	syncRulesPanel();
+}
+syncRulesPanel();
+if (rulesToggleEl) {
+	rulesToggleEl.addEventListener("click", toggleRules);
+	rulesToggleEl.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			toggleRules();
+		}
 	});
 }
 
@@ -761,7 +872,20 @@ function renderActionsOrCombat() {
 			btn.replaceWith(clone);
 			clone.addEventListener("click", () => {
 				const action = clone.dataset.combat;
-				performTurn_(() => combatTurn(state, action));
+				performTurn_(() => {
+					const hadCombat = !!state.combat;
+					combatTurn(state, action);
+					if (action === "attack" || action === "defend") {
+						try {
+							AudioManager.playHit();
+						} catch (_) {}
+					}
+					if (hadCombat && !state.combat && (state.combatLog || [])[0]?.includes("побеждён")) {
+						try {
+							AudioManager.playDeath();
+						} catch (_) {}
+					}
+				});
 			});
 		});
 	} else if (!inCombat && actionsEl) {
@@ -838,8 +962,22 @@ function renderActionsOrCombat() {
 				performTurn_(() => {
 					let ok = false;
 					if (action === "talk") ok = doTalk(state);
-					if (action === "chop") ok = doChopWood(state);
-					if (action === "quarry") ok = doQuarry(state);
+					if (action === "chop") {
+						ok = doChopWood(state);
+						if (ok) {
+							try {
+								AudioManager.playChop();
+							} catch (_) {}
+						}
+					}
+					if (action === "quarry") {
+						ok = doQuarry(state);
+						if (ok) {
+							try {
+								AudioManager.playQuarry();
+							} catch (_) {}
+						}
+					}
 					if (action === "hunt") ok = doHunt(state);
 					if (action === "fish") ok = doFish(state);
 					if (ok) moveEntitiesOnAction(state);
@@ -894,9 +1032,11 @@ function renderContextHints() {
 function renderHistory() {
 	if (!historyEl) return;
 	let items = (state.history || []).slice(0, 50);
-	if (!historyShowGlobal && historyShowPlayer) {
-		const playerName = state.player?.name;
-		items = items.filter((h) => h.who === playerName || (h.what || "").includes("«"));
+	const playerName = state.player?.name || "Hero";
+	const isPlayerRelated = (h) => h.who === playerName || (h.what || "").includes("«");
+	const isWorldRelated = (h) => !isPlayerRelated(h);
+	if (historyShowGlobal || historyShowPlayer) {
+		items = items.filter((h) => (historyShowGlobal && isWorldRelated(h)) || (historyShowPlayer && isPlayerRelated(h)));
 	}
 	let lastKey = "";
 	const grouped = [];

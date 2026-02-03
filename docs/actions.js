@@ -238,6 +238,7 @@ function isNight(state) {
 
 function handleDeath(state) {
 	const p = state.player;
+	state._playerDiedThisTurn = true;
 	const hosp = a1ToXY(CFG.RESPAWN.hospitalA1) || { x: 4, y: 7 };
 	p.hp = p.maxhp || 10;
 	p.x = hosp.x;

@@ -3,7 +3,7 @@
 import { CFG, GRID_H, GRID_W } from "./config.js";
 import { proceduralTile } from "./procedural.js";
 import { baseTile, randInt } from "./utils.js";
-import { generateWorld } from "./worldGenerator.js";
+import { WORLD } from "./world_base.js";
 
 function logHistory(state, who, what, opts = {}) {
 	state.history.unshift({
@@ -20,8 +20,8 @@ function logHistory(state, who, what, opts = {}) {
 }
 
 export function createInitialState() {
-	const worldSeed = Math.floor(Math.random() * 1000000);
-	const world = generateWorld(worldSeed);
+	const worldSeed = 4242; // фиксированный для оригинальной карты
+	const world = WORLD.map((row) => [...row]); // копия оригинальной карты
 	const pos = findFirstWalkable(world);
 
 	const playerCell = new Set([`${pos.x},${pos.y}`]);
